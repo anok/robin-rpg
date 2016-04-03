@@ -270,14 +270,18 @@ function judgeAnswers(answers) {
   round_answers = [];
 	if(answers[i][0] == "robin-rpg") {
 		continue;
-    }
+    	}
 	if(answers[i][0] == "[robin]") {
 		continue;
-    }
+    	}
 	if(answers[i][0] === "") {
 		continue;
-    }
+	}
 	if(answers[i][1].length <= 2) {
+		continue;
+	}
+	//Canal #;
+	if(answers[i][1][0] != "#") {
 		continue;
 	}
 	regexp = /[^\x00-\x7F]/g;
