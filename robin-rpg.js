@@ -158,7 +158,7 @@ function renderHP(hp, hptotal) {
 	hp_bar += "]";
 	return hp_bar;
 }
-function poseSingleQuestion(index, timeout) {
+function poseSingleQuest(index, timeout) {
   if(_round.num === 0) {
 	printQuest(index);
 	_round.hpleft = Math.floor(_q[index].hp * _hpmul);
@@ -208,11 +208,11 @@ function poseSingleQuestion(index, timeout) {
   }, timeout);
 }
 
-function _poseSeveralQuestions(indices, timeout, breaktime, currentIndex) {
+function _poseSeveralQuests(indices, timeout, breaktime, currentIndex) {
   if (currentIndex >= indices.length) {
     return;
   }
-  poseSingleQuestion(indices[currentIndex], timeout);
+  poseSingleQuest(indices[currentIndex], timeout);
   _quest_num++;
  
   var adj_breaktime = timeout + breaktime;
@@ -228,7 +228,7 @@ function _poseSeveralQuestions(indices, timeout, breaktime, currentIndex) {
 	} else {
 		nextIndex = currentIndex;
 	}
-    _poseSeveralQuestions(indices, timeout, breaktime, nextIndex);
+    _poseSeveralQuests(indices, timeout, breaktime, nextIndex);
   }, adj_breaktime);
 }
 function Round() {
@@ -238,8 +238,8 @@ function Round() {
 	  this.lasthit = "";
 }
 
-function poseSeveralQuestions(indices, timeout, breaktime) {
-  _poseSeveralQuestions(indices, timeout, breaktime, 0);
+function poseSeveralQuests(indices, timeout, breaktime) {
+  _poseSeveralQuests(indices, timeout, breaktime, 0);
 }
 
 function increaseScores(users) {
