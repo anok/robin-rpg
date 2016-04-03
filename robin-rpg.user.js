@@ -3,9 +3,10 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.00
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
-// @author       /u/anok
+// @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
+// @updateURL    https://github.com/anok/robin-rpg/raw/master/robin-rpg.user.js
 // ==/UserScript==
 (function() {
 
@@ -158,7 +159,7 @@ function renderHP(hp, hptotal) {
 	hp_bar += "]";
 	return hp_bar;
 }
-function poseSingleQuest(index, timeout) {
+function poseSingleQuestion(index, timeout) {
   if(_round.num === 0) {
 	printQuest(index);
 	_round.hpleft = Math.floor(_q[index].hp * _hpmul);
@@ -208,11 +209,11 @@ function poseSingleQuest(index, timeout) {
   }, timeout);
 }
 
-function _poseSeveralQuests(indices, timeout, breaktime, currentIndex) {
+function _poseSeveralQuestions(indices, timeout, breaktime, currentIndex) {
   if (currentIndex >= indices.length) {
     return;
   }
-  poseSingleQuest(indices[currentIndex], timeout);
+  poseSingleQuestion(indices[currentIndex], timeout);
   _quest_num++;
  
   var adj_breaktime = timeout + breaktime;
@@ -228,7 +229,7 @@ function _poseSeveralQuests(indices, timeout, breaktime, currentIndex) {
 	} else {
 		nextIndex = currentIndex;
 	}
-    _poseSeveralQuests(indices, timeout, breaktime, nextIndex);
+    _poseSeveralQuestions(indices, timeout, breaktime, nextIndex);
   }, adj_breaktime);
 }
 function Round() {
@@ -238,8 +239,8 @@ function Round() {
 	  this.lasthit = "";
 }
 
-function poseSeveralQuests(indices, timeout, breaktime) {
-  _poseSeveralQuests(indices, timeout, breaktime, 0);
+function poseSeveralQuestions(indices, timeout, breaktime) {
+  _poseSeveralQuestions(indices, timeout, breaktime, 0);
 }
 
 function increaseScores(users) {
