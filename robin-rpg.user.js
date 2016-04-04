@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.21
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -189,13 +189,13 @@ function poseSingleQuest(index, timeout) {
 		//ROUND OVER
 		var runawayMessage = "";
 		if(_runaway > 0) {
-			if((_round.hpleft*100/hptotal) > 70)) {
+			if((_round.hpleft*100/hptotal) > 70) {
 			runwayMessage = "[" + _runaway + "/" + NUM_TO_FLEE +" to flee!]";
 			} else {
 				runawayMessage = "[can't flee!]";
 			}
 		}
-		buildAnswerMessage += "Round #" + _round.num + ", " + _round.dmg + " hits! " + _q[index].name + " HP: " + renderHP(_round.hpleft, total) + " " + runawayMessage + " +XP: ";	
+		buildAnswerMessage += "Round #" + _round.num + ", " + _round.dmg + " hits! " + _q[index].name + " HP: " + renderHP(_round.hpleft, hptotal) + " " + runawayMessage + " +XP: ";	
 		for (var user in usersScored) {
 			usersArray.push([user, usersScored[user]]);
 		}
