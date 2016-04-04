@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      1.49
+// @version      1.50
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -11,8 +11,8 @@
 (function() {
 
 MAX_MESSAGE_LENGTH = 140;
-TIME_PER_QUEST = 24000;
-TIME_PER_BREAK = 16000;
+TIME_PER_QUEST = 35000;
+TIME_PER_BREAK = 20000;
 RETRY_CONNECT = 2000;
 
 QUESTS_PER_SCORE_DISPLAY = 6;
@@ -97,9 +97,16 @@ function saveScores(scores) {
 function computeLevel(xp) {
 	return Math.floor(((Math.sqrt(625+100*xp)-25)/50)+1);
 }
+
+function readXp(user) {
+    if (scores[user] === undefined) {
+      scores[user] = [0,0];
+    }
+	return scores[user][0];
+}
 function userInfoLvl(user) {
   //Return xp/lvl.
-  xp = scores[user][0];
+  xp = readXp(user);
   level = computeLevel(xp);
   nextLevel = level + 1;
   levelTarget = (25*level)*(1+level);
@@ -336,7 +343,7 @@ function judgeAnswers(answers) {
 		_runaway += 1;
 	}
 	
-	var _xp = scores[_user][0];
+	var _xp = readXp(user);
 	var _userlevel = computeLevel(_xp === undefined? 1 : _xp );
 	var _userloot = scores[_user][1];
 	var _lootbonus = 1.125 * (_userloot / (_userloot + 60)) + 1;
@@ -358,8 +365,8 @@ function judgeAnswers(answers) {
 	}
 	if(answers[i][1].includes("#rpg")) {
 		roundExp[_user] += (_thisratio * 0.5);
-		_round.hpleft -= _userlevel * (_ratio * 0.5);
-		_round.dmg += _userlevel * (_ratio * 0.5);
+		_round.hpleft -= _userlevel * _lootbonus * (_ratio * 0.5);
+		_round.dmg += _userlevel  * _lootbonus * (_ratio * 0.5);
 	}
 	
 	if(_round.hpleft <= 0) {
