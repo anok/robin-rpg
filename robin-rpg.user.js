@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      1.23
+// @version      1.4
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -36,6 +36,7 @@ _additional_pause = 0;
 _round = {};
 _runaway = 0;
 
+scores = { };
 
 function parseMonsters(monstersDb) {
     function Monster(name, hp) {
@@ -60,14 +61,25 @@ function loot() {
 	while(_l[a] === undefined) {
 		a = Math.floor(Math.random() * (_l.length));
 	}
-	return _l[a];
+	return a;
 }
 
-scores = { };
+function addLoot(user) {
+	if (scores[user] === undefined) {
+      scores[user] = [0,0];
+    }
+	scores[user][1] += 1;
+}
 function loadScores() {
   var scoresText = localStorage[SAVE_STRING];
   if (scoresText) {
     scores = JSON.parse(scoresText);
+    for (var user in scores) {
+	 	var data = scores[user];
+	 	if(typeof data === 'number' && (data%1)===0) {
+	    	scores[user] = [data, 0];
+	    }
+ 	}
   }
   else {
     scores = { };
@@ -84,13 +96,14 @@ function computeLevel(xp) {
 }
 function userInfoLvl(user) {
   //Return xp/lvl.
-  level = computeLevel(scores[user]);
+  xp = scores[user][0];
+  level = computeLevel(xp);
   nextLevel = level + 1;
   levelTarget = (25*level)*(1+level);
   nextLevelTarget = (25*nextLevel*(1+nextLevel));
-  nextLevelPercent = ((scores[user] - levelTarget) * 100) / (nextLevelTarget - levelTarget);
+  nextLevelPercent = ((xp - levelTarget) * 100) / (nextLevelTarget - levelTarget);
   nextLevelPercent = 100-Math.abs(Math.floor(nextLevelPercent));
-  return user + " (" + ((scores[user] !== null ? level : "0") + "/" + nextLevelPercent + "%") + ")";
+  return user + " (" + ((xp !== null ? level : "0") + "/" + nextLevelPercent + "%") + ")";
 }
 
 function userInfoXp(user, xp) {
@@ -98,15 +111,10 @@ function userInfoXp(user, xp) {
   return user + " (" + (xp !== null ? xp : "0") + ")";
 }
 
-function returnDead() {
-	var re = Math.floor(Math.random()%2)+1;
-	return re == 2? "dead" : "kill";
-}
-
 function computeTopScoresStr(scores, num) {
   var scoresArray = [ ];
   for (var user in scores) {
-    scoresArray.push([user, scores[user]]);
+    scoresArray.push([user, scores[user][0]]);
   }
   scoresArray.sort(function(a, b) { return -(a[1] - b[1]); });
   var buildScores = "#rpg HEROES : ";
@@ -207,7 +215,10 @@ function poseSingleQuest(index, timeout) {
 	} else if(runaway === false) {
 		//BUILD KILL MONSTER
 		usersScored.sort(function(a, b) { return -(a[1] - b[1]); });
-		buildAnswerMessage += _q[index].name + " is "+ (returnDead()) +"! " +  _round.lasthit + " picks up [" + loot() +"]!";
+		var loot = loot();
+		buildAnswerMessage += _q[index].name + " is kill! " +  _round.lasthit + " picks up [" + _l[loot] +"]!";
+		addLoot(_round.lasthit);
+		saveScores(scores);
 		buildAnswerMessage += " LVLs: ";	
 		for (var user in usersScored) {
 			usersArray.push([user, usersScored[user]]);
@@ -216,7 +227,7 @@ function poseSingleQuest(index, timeout) {
 		buildAnswerMessage  += usersArray.map(i => userInfoLvl(i[0])).slice(0, 15).join(", ");
 		_round = new Round();
 		_runaway = 0;
-	} 
+	}
     sendMessage(buildAnswerMessage);
   }, timeout);
 }
@@ -229,12 +240,14 @@ function _poseSeveralQuests(indices, timeout, breaktime, currentIndex) {
   _quest_num++;
  
   var adj_breaktime = timeout + breaktime;
+
   if (_quest_num % QUESTS_PER_SCORE_DISPLAY === 0) {
     setTimeout(function() {
       sendMessage(computeTopScoresStr(scores, NUM_SCORES_TO_DISPLAY));
     }, timeout + breaktime);
 	adj_breaktime = timeout + 2 * breaktime;
   }
+
   setTimeout(function() {
 	if(_round.hpleft <= 0) {
 		nextIndex = currentIndex + 1;
@@ -243,7 +256,9 @@ function _poseSeveralQuests(indices, timeout, breaktime, currentIndex) {
 	}
     _poseSeveralQuests(indices, timeout, breaktime, nextIndex);
   }, adj_breaktime);
+  
 }
+
 function Round() {
 	  this.num = 0;
 	  this.dmg = 0;
@@ -258,9 +273,9 @@ function poseSeveralQuests(indices, timeout, breaktime) {
 function increaseScores(users) {
   for (var user in users) {
     if (scores[user] === undefined) {
-      scores[user] = 0;
+      scores[user] = [0,0];
     }
-    scores[user] += users[user];
+    scores[user][0] += users[user];
   }
 }
 
@@ -276,89 +291,85 @@ function pullNewAnswers() {
 }
 
 function judgeAnswers(answers) {
-  var re = [];
-  var _thislvl = 0;
+  var roundExp = [];
+  var _ratio = 0;
   for (var i=0; i<answers.length; ++i) {
-  round_answers = [];
-	if(answers[i][0] == USER_NAME) {
+  	var _user = answers[i][0];
+  	var _msg = answers[i][1]];
+	if(_user == USER_NAME) {
 		//Plugin to moderation? TO-DO.
 		continue;
     	}
-	if(answers[i][0] == "[robin]") {
+	if(_user == "[robin]") {
 		continue;
     	}
-	if(answers[i][0] === "") {
+	if(_user === "") {
 		continue;
 	}
-	if(answers[i][1].length <= 2) {
+	if(_msg.length <= 2) {
 		continue;
 	}
+
 	//only read #rpg;
-	if(answers[i][1].substring(0,4) !== "#rpg") {
+	if(_msg.substring(0,4) !== "#rpg") {
 		continue;
 	}
 	
 	//only read ascii
 	regexp = /[^\x00-\x7F]/g;
-	if(regexp.exec(answers[i][1])) {
+	if(regexp.exec(_msg)) {
 		continue;
 	}
 	
 	//dont read text bombs
 	regexp_bombs = /([\x00-\x7F])\1{8,}/g;
-	if(regexp_bombs.exec(answers[i][1])) {
+	if(regexp_bombs.exec(_msg)) {
 		continue;
 	}
 	
-	if(answers[i][1][0] == '[') {
-		continue;
-	}
-	
-	if(answers[i][1][0] == '%') {
-		continue;
-	}
-	
-	if(answers[i][1].includes("!flee")) {
+	if(_msg.includes("!flee")) {
 		_runaway += 1;
 	}
 	
-	
-	userlvl = computeLevel(scores[answers[i][0]] === undefined? 1 : scores[answers[i][0]] );
-	if(re[answers[i][0]] === undefined) {
-		re[answers[i][0]] = 0;
+	var _xp = scores[_user][0];
+	var _userlevel = computeLevel(_xp === undefined? 1 : _xp );
+	var _userloot = scores[_user][1];
+	var _lootbonus = 1.125 * (_userloot / (_userloot + 60)) + 1;
+	if(roundExp[_user] === undefined) {
+		roundExp[_user] = 0;
 	}
 	
-	if(answers[i][1].length > 60) {
-	  _thislvl = 3;
-      re[answers[i][0]] += 3;
-	  _round.hpleft -= userlvl * 3;
-	  _round.dmg += userlvl * 3;
+	if(_msg.length > 60) {
+	  _ratio = 3;
+      roundExp[_user] += 3;
+	  _round.hpleft -= _userlevel * _lootbonus * 3;
+	  _round.dmg += _userlevel * _lootbonus * 3;
 	}
 	else {
-	  _thislvl = 1;
-	  re[answers[i][0]] += 1;
-	  _round.hpleft -= userlvl * 1;
-	  _round.dmg += userlvl * 1;
+	  _ratio = 1;
+	  roundExp[_user] += 1;
+	  _round.hpleft -= userlvl * _lootbonus * 1;
+	  _round.dmg += userlvl * _lootbonus * 1;
 	}
 	if(answers[i][1].includes("#rpg")) {
-		re[answers[i][0]] += (_thislvl * 0.5);
-		_round.hpleft -= userlvl * (_thislvl * 0.5);
-		_round.dmg += userlvl * (_thislvl * 0.5);
+		roundExp[_user] += (_thisratio * 0.5);
+		_round.hpleft -= _userlevel * (_ratio * 0.5);
+		_round.dmg += _userlevel * (_ratio * 0.5);
 	}
 	
 	if(_round.hpleft <= 0) {
-		re[answers[i][0]] += 10;
+		roundExp[_user] += 10;
 		_round.lasthit = answers[i][0];
 	}
-	round_answers.push(answers[i][1]);
   }
 
-  return re;
+  return roundExp;
 }
 
 function pause(ms) {
     _additional_pause += ms;
 }
+
 function simpleRpgLoop(q) {
   parseMonsters(q);
   parseLoot(l);
