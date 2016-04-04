@@ -189,7 +189,7 @@ function poseSingleQuest(index, timeout) {
 		//ROUND OVER
 		var runawayMessage = "";
 		if(_runaway > 0) {
-			if((_round.hpleft*100/hptotal) > 70)) {
+			if((_round.hpleft*100/hptotal) > 70) {
 			runwayMessage = " [" + _runaway + "/" + NUM_TO_FLEE +" to flee!]";
 			} else {
 				runawayMessage = " [can't flee!]";
