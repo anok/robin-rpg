@@ -334,7 +334,7 @@ function judgeAnswers(answers) {
 	var _xp = scores[_user][0];
 	var _userlevel = computeLevel(_xp === undefined? 1 : _xp );
 	var _userloot = scores[_user][1];
-
+	var _lootbonus = 1.125 * (_userloot / (_userloot + 60)) + 1;
 	if(roundExp[_user] === undefined) {
 		roundExp[_user] = 0;
 	}
@@ -342,14 +342,14 @@ function judgeAnswers(answers) {
 	if(_msg.length > 60) {
 	  _ratio = 3;
       roundExp[_user] += 3;
-	  _round.hpleft -= _userlevel * 3;
-	  _round.dmg += _userlevel * 3;
+	  _round.hpleft -= _userlevel * _lootbonus * 3;
+	  _round.dmg += _userlevel * _lootbonus * 3;
 	}
 	else {
 	  _ratio = 1;
 	  roundExp[_user] += 1;
-	  _round.hpleft -= userlvl * 1;
-	  _round.dmg += userlvl * 1;
+	  _round.hpleft -= userlvl * _lootbonus * 1;
+	  _round.dmg += userlvl * _lootbonus * 1;
 	}
 	if(answers[i][1].includes("#rpg")) {
 		roundExp[_user] += (_thisratio * 0.5);
