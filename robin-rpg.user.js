@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      1.48
+// @version      1.49
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -353,8 +353,8 @@ function judgeAnswers(answers) {
 	else {
 	  _ratio = 1;
 	  roundExp[_user] += 1;
-	  _round.hpleft -= userlvl * _lootbonus * 1;
-	  _round.dmg += userlvl * _lootbonus * 1;
+	  _round.hpleft -= _userlevel * _lootbonus * 1;
+	  _round.dmg += _userlevel * _lootbonus * 1;
 	}
 	if(answers[i][1].includes("#rpg")) {
 		roundExp[_user] += (_thisratio * 0.5);
