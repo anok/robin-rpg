@@ -298,7 +298,7 @@ function judgeAnswers(answers) {
   var _ratio = 0;
   for (var i=0; i<answers.length; ++i) {
   	var _user = answers[i][0];
-  	var _msg = answers[i][1]];
+  	var _msg = answers[i][1];
 	if(_user == USER_NAME) {
 		//Plugin to moderation? TO-DO.
 		continue;
