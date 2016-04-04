@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -19,6 +19,8 @@ QUESTS_PER_SCORE_DISPLAY = 6;
 NUM_SCORES_TO_DISPLAY = 15;
 
 NUM_TO_FLEE = 6;
+
+USER_NAME = "robin-rpg";
 
 SAVE_STRING = "robin-rpg-scores";
 MONSTER_STRING = "robin-rpg-monster";
@@ -60,8 +62,8 @@ function loot() {
 	}
 	return _l[a];
 }
-scores = { };
 
+scores = { };
 function loadScores() {
   var scoresText = localStorage[SAVE_STRING];
   if (scoresText) {
@@ -72,6 +74,7 @@ function loadScores() {
   }
   return scores;
 }
+
 function saveScores(scores) {
   localStorage[SAVE_STRING] = JSON.stringify(scores);
 }
@@ -143,7 +146,7 @@ function sendMessage(message) {
   unsafeWindow.$(".text-counter-input").val(truncated_message).trigger("submit");
 }
 function printQuest(index) {
-  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.floor(_q[index].hp * _hpmul) + "[█████]! Attack it by chatting(no spam)! (type \"runaway\" to flee)! Add #rpg for 50%+ exp!");
+  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.floor(_q[index].hp * _hpmul) + "[█████]! Attack it by chatting(no spam)! (or try to !flee)! Add #rpg for 50%+ exp!");
 }
 
 function renderHP(hp, hptotal) {
@@ -160,9 +163,10 @@ function renderHP(hp, hptotal) {
 	return hp_bar;
 }
 function poseSingleQuest(index, timeout) {
+  var hptotal = Math.floor(_q[index].hp * _hpmul);
   if(_round.num === 0) {
 	printQuest(index);
-	_round.hpleft = Math.floor(_q[index].hp * _hpmul);
+	_round.hpleft = hptotal;
   } else {
 	  _round.dmg = 0;
   }
@@ -172,11 +176,10 @@ function poseSingleQuest(index, timeout) {
     var answers = pullNewAnswers();
     usersScored = judgeAnswers(answers);
 	var buildAnswerMessage = "#rpg ";
-	var runaway = false;
-	if(_runaway >= NUM_TO_FLEE) {
+	var runaway = false;	
+	if(_runaway >= NUM_TO_FLEE && (_round.hpleft*100/hptotal) > 70) {
 		buildAnswerMessage += "You fleed " +  _q[index].name + " and it's glorious loot of [" + loot() + "]!";
 		_round.hpleft = 0;
-		_runaway = -2;
 		runaway = true;
 	}
     increaseScores(usersScored);
@@ -184,7 +187,15 @@ function poseSingleQuest(index, timeout) {
 	var usersArray = [];
 	if(_round.hpleft > 0) {
 		//ROUND OVER
-		buildAnswerMessage += "Round #" + _round.num + ", " + _round.dmg + " hits! " + _q[index].name + " HP: " + renderHP(_round.hpleft, Math.floor(_q[index].hp * _hpmul)) + " +XP: ";	
+		var runawayMessage = "";
+		if(_runaway > 0) {
+			if((_round.hpleft*100/hptotal) > 70)) {
+			runwayMessage = "[" + _runaway + "/" + NUM_TO_FLEE +" to flee!]";
+			} else {
+				runawayMessage = "[can't flee!]";
+			}
+		}
+		buildAnswerMessage += "Round #" + _round.num + ", " + _round.dmg + " hits! " + _q[index].name + " HP: " + renderHP(_round.hpleft, total) + " " + runawayMessage + " +XP: ";	
 		for (var user in usersScored) {
 			usersArray.push([user, usersScored[user]]);
 		}
@@ -268,7 +279,8 @@ function judgeAnswers(answers) {
   var _thislvl = 0;
   for (var i=0; i<answers.length; ++i) {
   round_answers = [];
-	if(answers[i][0] == "robin-rpg") {
+	if(answers[i][0] == USER_NAME) {
+		//Plugin to moderation? TO-DO.
 		continue;
     	}
 	if(answers[i][0] == "[robin]") {
@@ -280,15 +292,18 @@ function judgeAnswers(answers) {
 	if(answers[i][1].length <= 2) {
 		continue;
 	}
-	//Canal #;
+	//only read #rpg;
 	if(answers[i][1].substring(0,4) !== "#rpg") {
 		continue;
 	}
+	
+	//only read ascii
 	regexp = /[^\x00-\x7F]/g;
 	if(regexp.exec(answers[i][1])) {
 		continue;
 	}
 	
+	//dont read text bombs
 	regexp_bombs = /([\x00-\x7F])\1{8,}/g;
 	if(regexp_bombs.exec(answers[i][1])) {
 		continue;
@@ -302,7 +317,7 @@ function judgeAnswers(answers) {
 		continue;
 	}
 	
-	if(answers[i][1].includes("runaway")) {
+	if(answers[i][1].includes("!flee")) {
 		_runaway += 1;
 	}
 	
