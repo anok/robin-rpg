@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Robin rpg bot
-// @namespace    http://tampermonkey.net/
+// @namespace    https://github.com/anok/robin-rpg/
 // @version      2.0
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
@@ -107,8 +107,8 @@ function readXp(user) {
 }
 
 function readLoot(user) {
-	if(scores[user] == undefined) {
-		scores[user] = [0,0]
+	if(scores[user] === undefined) {
+		scores[user] = [0,0];
 	}
 	return scores[user][1];
 }
@@ -245,7 +245,7 @@ function listCommands(commands) {
 	var _user = commands[i][0];
 	var _msg = commands[i][1];
 	
-	if(filterMessage(_user, _msg) == true) {
+	if(filterMessage(_user, _msg) === true) {
 		continue;
 	}
 	if(_msg.includes("!party")) {
