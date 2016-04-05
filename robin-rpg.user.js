@@ -164,7 +164,7 @@ function sendMessage(message) {
   unsafeWindow.$(".text-counter-input").val(truncated_message).trigger("submit");
 }
 function printQuest(index) {
-  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.floor(_q[index].hp * _hpmul) + "[█████]! Attack it by chatting(no spam)! (or try to !flee)! Add #rpg for 50%+ exp!");
+  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.floor(_q[index].hp * _hpmul) + "[█████]! Attack it by chatting(no spam)! (or try to !flee)! Join #rpg for 50%+ exp!");
 }
 
 function renderHP(hp, hptotal) {
