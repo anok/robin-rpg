@@ -23,7 +23,7 @@
     var NUM_TO_FLEE = 6;
 
     var FILTER_CHANNEL = true;
-    var FILTER = "$rpg";
+    var FILTER = "%rpg";
     var USER_NAME = "robin-rpgbot";
 
     var SAVE_STRING = "robin-rpg-scores";
@@ -39,7 +39,7 @@
     var _additional_pause = 0;
     var _round = {};
     var _runaway = 0;
-
+    var _monsters;
     var scores = { };
 
     function parseMonsters(monstersDb) {
@@ -47,7 +47,7 @@
             this.name = name;
             this.hp = hp;
         }
-        var _monsters = monstersDb.split(',');
+        _monsters = monstersDb.split(',');
         for(var i = 0; i < _monsters.length; i += 2) {
             _q.push(new Monster(_monsters[i], _monsters[i+1]));
         }
