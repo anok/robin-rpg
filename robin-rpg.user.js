@@ -225,7 +225,7 @@ function poseSingleQuest(index, timeout) {
 	} else if(runaway === false) {
 		//BUILD KILL MONSTER
 		usersScored.sort(function(a, b) { return -(a[1] - b[1]); });
-		var loot = loot();
+		var loot = generateLoot();
 		buildAnswerMessage += _q[index].name + " is kill! " +  _round.lasthit + " picks up [" + _l[loot] +"]!";
 		addLoot(_round.lasthit);
 		saveScores(scores);
