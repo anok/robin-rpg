@@ -304,12 +304,19 @@ function replyCommand() {
 }
 
 function assembleParty(user) {
-	var reply = "THE PARTY: "
-	reply += userInfoLvl(user) + " and... "
-	partyPeople = _round.party;
-	shuffle(partyPeople);
-	reply += partyPeople.map(i => userInfoXp(i[0], i[1])).slice(0, 15).join(", ");
+	var reply = "THE PARTY: ";
+	reply += userInfoLvl(user);
+    partyPeople = _round.party;
+    if(partyPeople.legnth == 0) {
+        reply += ", the lone wolf.";
+    } else { 
+        reply += " and... ";
+        shuffle(partyPeople);
+        reply += partyPeople.map(i => userInfoXp(i[0], i[1])).slice(0, 15).join(", ");
+    }
+    return reply;
 }
+
 function poseSingleQuest(index, timeout) {
   var hptotal = Math.floor(_q[index].hp * _hpmul);
   if(_round.num === 0) {
