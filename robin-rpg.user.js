@@ -17,7 +17,7 @@ RETRY_CONNECT = 2000;
 NUM_COMMANDS = 5;
 COMMANDS_TIMEOUT = 5000;
 
-QUESTS_PER_SCORE_DISPLAY = 20;
+QUESTS_PER_SCORE_DISPLAY = 10;
 NUM_SCORES_TO_DISPLAY = 15;
 
 NUM_TO_FLEE = 6;
@@ -297,10 +297,10 @@ function replyCommand() {
 					commandMessage += computeTopScoresStr(scores, 15);
 				break;
                 case "!help":
-					commandMessage += "Chat your way to glory! Engrave your name in the hall of !heroes, !loot monsters or just hang out with your !party";
+					commandMessage += "Each line deals damage, wich is based on your level and your loot, other !commands are avaliable";
 				break;
-				case "!help":
-					commandMessage += "!loot checks your belongins, !heroes check the hall of fame, !party check your level, !flee runaway";
+				case "!commands":
+					commandMessage += "!loot checks your belongins, !heroes check the hall of fame, !party check your level, !flee to runaway.";
 				break;
 			}
 			sendMessage(commandMessage);
@@ -412,7 +412,7 @@ function _poseSeveralQuests(indices, timeout, breaktime, currentIndex) {
 
   if (_quest_num % QUESTS_PER_SCORE_DISPLAY === 0) {
     setTimeout(function() {
-      sendMessage(computeTopScoresStr(scores, NUM_SCORES_TO_DISPLAY));
+      sendMessage(FILTER + " Foward, Adventurers! Kill the foes, get the !loot. Deal damage chatting, and level up with your !party. Or just see the !help.");
     }, timeout + breaktime);
 	adj_breaktime = timeout + 2 * breaktime;
   }
