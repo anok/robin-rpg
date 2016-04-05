@@ -376,7 +376,7 @@ function poseSingleQuest(index, timeout) {
 		usersArray.sort(function(a, b) { return -(a[1] - b[1]); });
 		buildAnswerMessage  += usersArray.map(i => userInfoLvl(i[0])).slice(0, 15).join(", ");
 		_round = new Round(_round.party);
-	} if(runway === true) {
+	} if(runaway === true) {
 		_round = new Round(_round.party);
 	}
     sendMessage(buildAnswerMessage);
