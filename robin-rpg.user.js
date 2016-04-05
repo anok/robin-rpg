@@ -17,7 +17,7 @@ RETRY_CONNECT = 2000;
 NUM_COMMANDS = 5;
 COMMANDS_TIMEOUT = 5000;
 
-QUESTS_PER_SCORE_DISPLAY = 6;
+QUESTS_PER_SCORE_DISPLAY = 20;
 NUM_SCORES_TO_DISPLAY = 15;
 
 NUM_TO_FLEE = 6;
@@ -172,7 +172,7 @@ function sendMessage(message) {
   unsafeWindow.$(".text-counter-input").val(truncated_message).trigger("submit");
 }
 function printQuest(index) {
-  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[█████]! Attack it by chatting(no spam)! (or try to !flee)! Add #rpg for 50%+ exp!");
+  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[█████]! Attack it by chatting(no spam)! (or try to !flee)! Join #rpg for 50%+ exp!");
 }
 
 function renderHP(hp, hptotal) {
@@ -276,26 +276,27 @@ function listCommands(commands) {
 function replyCommand() {
 	setTimeout(function() {
 		var commands = pullNewCommands();
-		commandsList.push(listCommands(commands));
+		commandMessage = "#rpg ";
+		commandsList = listCommands(commands);
 		if(commandsList.length > 0) {
 			command = commandsList[0][0];
 			command_user = commandsList[0][1];
 			switch(command) {
 				case "!loot":
-					commandMessage = command_user + " bag of holding contains " + readLoot(command_user) + " shiny things!";
+					commandMessage += command_user + " bag of holding contains " + readLoot(command_user) + " shiny things!";
 				break;
                 case "!party":
-					commandMessage = assembleParty(command_user);
+					commandMessage += assembleParty(command_user);
 				break;
                 case "!heroes":
-					commandMessage = computeTopScoresStr(scores, 15);
+					commandMessage += computeTopScoresStr(scores, 15);
 				break;
                 case "!help":
-					commandMessage = "Chat your way to glory! Engrave your name in the hall of !heroes, !loot monsters or just hang out with your !party";
+					commandMessage += "Chat your way to glory! Engrave your name in the hall of !heroes, !loot monsters or just hang out with your !party";
 				break;
 			}
+			sendMessage(commandMessage);
 		}
-		sendMessage(commandMessage);
 		if(_num_commands > 0) {
 			_num_commands--;
 			replyCommand();
@@ -307,12 +308,12 @@ function assembleParty(user) {
 	var reply = "THE PARTY: ";
 	reply += userInfoLvl(user);
     partyPeople = _round.party;
-    if(partyPeople.legnth == 0) {
+    if(partyPeople.length <= 1 && partyPeople[0][0] === user) {
         reply += ", the lone wolf.";
     } else { 
         reply += " and... ";
         shuffle(partyPeople);
-        reply += partyPeople.map(i => userInfoXp(i[0], i[1])).slice(0, 15).join(", ");
+        reply += partyPeople.map(i => userInfoLvl(i[0])).slice(0, 15).join(", ");
     }
     return reply;
 }
@@ -324,7 +325,6 @@ function poseSingleQuest(index, timeout) {
   } else {
 	  _round.dmg = 0;
   }
-  var usersCorrect = [ ];
   _num_commands = NUM_COMMANDS;
   replyCommand();
   setTimeout(function() {
@@ -336,6 +336,7 @@ function poseSingleQuest(index, timeout) {
 	if(_runaway >= NUM_TO_FLEE && (_round.hpleft*100/hptotal) > 70) {
 		buildAnswerMessage += "You fleed " +  _q[index].name + " and it's glorious loot of [" + _l[generateLoot()] + "]!";
 		_round.hpleft = 0;
+		_runaway = 0;
 		runaway = true;
 	}
     increaseScores(usersScored);
@@ -359,7 +360,7 @@ function poseSingleQuest(index, timeout) {
 		if(usersArray.length === 0) {
 			buildAnswerMessage += "no one :(";
 		}
-		_round.party = usersArray.length > 0 ? userArray : _round.party;
+		_round.party = usersArray.length > 0 ? usersArray : _round.party;
 		buildAnswerMessage += usersArray.map(i => userInfoXp(i[0], i[1])).slice(0, 15).join(", ");
 	} else if(runaway === false) {
 		//BUILD KILL MONSTER
@@ -502,7 +503,7 @@ function simpleRpgLoop(q) {
     r.push(i);
   }
   shuffle(_l);
-  _round = new Round();
+  _round = new Round([]);
   loadScores();
   shuffle(r);
   poseSeveralQuests(r, TIME_PER_QUEST, TIME_PER_BREAK);
