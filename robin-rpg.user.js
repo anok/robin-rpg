@@ -79,7 +79,7 @@ function loadScores() {
     scores = JSON.parse(scoresText);
     for (var user in scores) {
 	 	var data = scores[user];
-	 	if(typeof data === 'number' && (data%1)===0) {
+	 	if(typeof data === 'number') {
 	    	scores[user] = [data, 0];
 	    }
  	}
