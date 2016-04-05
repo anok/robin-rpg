@@ -172,7 +172,7 @@ function sendMessage(message) {
   unsafeWindow.$(".text-counter-input").val(truncated_message).trigger("submit");
 }
 function printQuest(index) {
-  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[⬛⬛⬛⬛⬛]! Attack it by chatting(no spam)! (or try to !flee)! Join #rpg for 50%+ exp!");
+  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[⬛⬛⬛⬛⬛]! Attack it by chatting! (you can !flee and get !help)! Join #rpg for 50%+ exp!");
 }
 
 function renderHP(hp, hptotal) {
@@ -314,7 +314,12 @@ function assembleParty(user) {
 		reply += userInfoLvl(user);
         reply += " and... ";
         shuffle(partyPeople);
-		
+		partyPeople = partyPeople.slice(0,15);
+		for(i = 0; i < partyPeople.length; i++) {
+			if(partyPeople[i][0] == user) {
+				partyPeople = partyPeople.splice(i, 1);
+			}
+		}
         reply += partyPeople.map(i => userInfoLvl(i[0])).slice(0, 15).join(", ");
     }
     return reply;
@@ -378,6 +383,7 @@ function poseSingleQuest(index, timeout) {
 		usersArray.sort(function(a, b) { return -(a[1] - b[1]); });
 		buildAnswerMessage  += usersArray.map(i => userInfoLvl(i[0])).slice(0, 15).join(", ");
 		_round = new Round(_round.party);
+		_runaway = 0;
 	} if(runaway === true) {
 		_round = new Round(_round.party);
 	}
