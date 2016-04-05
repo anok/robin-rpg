@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.1
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -172,7 +172,7 @@ function sendMessage(message) {
   unsafeWindow.$(".text-counter-input").val(truncated_message).trigger("submit");
 }
 function printQuest(index) {
-  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[█████]! Attack it by chatting(no spam)! (or try to !flee)! Join #rpg for 50%+ exp!");
+  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[⬛⬛⬛⬛⬛]! Attack it by chatting(no spam)! (or try to !flee)! Join #rpg for 50%+ exp!");
 }
 
 function renderHP(hp, hptotal) {
@@ -180,9 +180,9 @@ function renderHP(hp, hptotal) {
 	hp_percent = (hp*100/hptotal);
 	for(i = 0; i < 5; i++) {
 		if(hp_percent > i*20) {
-			hp_bar += "█";
+			hp_bar += "⬛";//full
 		} else {
-			hp_bar += "▒";
+			hp_bar += "⬜";//empty
 		}
 	}
 	hp_bar += "]";
@@ -347,7 +347,7 @@ function poseSingleQuest(index, timeout) {
 		var runawayMessage = "";
 		if(_runaway > 0) {
 			if((_round.hpleft*100/hptotal) > 70) {
-				runawayMessage = " [" + _runaway + "/" + NUM_TO_FLEE +" to flee!]";
+				runawayMessage = " [" + _runaway + "/" + NUM_TO_FLEE +" to !flee]";
 			} else {
 				runawayMessage = " [can't flee!]";
 			}
@@ -376,7 +376,8 @@ function poseSingleQuest(index, timeout) {
 		usersArray.sort(function(a, b) { return -(a[1] - b[1]); });
 		buildAnswerMessage  += usersArray.map(i => userInfoLvl(i[0])).slice(0, 15).join(", ");
 		_round = new Round(_round.party);
-		_runaway = 0;
+	} if(runway === true) {
+		_round = new Round(_round.party);
 	}
     sendMessage(buildAnswerMessage);
   }, timeout);
