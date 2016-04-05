@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Robin rpg bot
-// @namespace    https://github.com/anok/robin-rpg/
+// @namespace    http://tampermonkey.net/
 // @version      2.0
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
@@ -282,16 +282,16 @@ function replyCommand() {
 			command_user = commandsList[0][1];
 			switch(command) {
 				case "!loot":
-					commandMessage = command_user + " bag of holding contains " + readLoot(command_user) + " shiny things!"
+					commandMessage = command_user + " bag of holding contains " + readLoot(command_user) + " shiny things!";
 				break;
-				case "!party"
+                case "!party":
 					commandMessage = assembleParty(command_user);
 				break;
-				case "!heroes"
+                case "!heroes":
 					commandMessage = computeTopScoresStr(scores, 15);
 				break;
-				case "!help"
-					commandMessage = "Chat your way to glory! Engrave your name in the hall of !heroes, !loot monsters or just hang out with your !party"
+                case "!help":
+					commandMessage = "Chat your way to glory! Engrave your name in the hall of !heroes, !loot monsters or just hang out with your !party";
 				break;
 			}
 		}
@@ -316,7 +316,6 @@ function assembleParty(user) {
     }
     return reply;
 }
-
 function poseSingleQuest(index, timeout) {
   var hptotal = Math.floor(_q[index].hp * _hpmul);
   if(_round.num === 0) {
@@ -447,9 +446,8 @@ function judgeAnswers(answers) {
   for (var i=0; i<answers.length; ++i) {
   	var _user = answers[i][0];
   	var _msg = answers[i][1];
-		if(_msg.substring(0,25).includes("#rpg")) {
 	
-	if(filterMessage(_user, _msg) == true) {
+	if(filterMessage(_user, _msg) === true) {
 		continue;
 	}
 	
