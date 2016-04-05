@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      2.2
+// @version      2.3
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -300,7 +300,7 @@ function replyCommand() {
 					commandMessage += "Each line deals damage, wich is based on your level and your loot, other !commands are avaliable";
 				break;
 				case "!commands":
-					commandMessage += "!loot checks your belongins, !heroes check the hall of fame, !party check your level, !flee to runaway.";
+					commandMessage += "!loot checks your belongings, !heroes check the hall of fame, !party check your level, !flee runs away.";
 				break;
 			}
 			sendMessage(commandMessage);
