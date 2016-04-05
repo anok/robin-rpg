@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      1.50
+// @version      1.51
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -343,7 +343,7 @@ function judgeAnswers(answers) {
 		_runaway += 1;
 	}
 	
-	var _xp = readXp(user);
+	var _xp = readXp(_user);
 	var _userlevel = computeLevel(_xp === undefined? 1 : _xp );
 	var _userloot = scores[_user][1];
 	var _lootbonus = 1.125 * (_userloot / (_userloot + 60)) + 1;
