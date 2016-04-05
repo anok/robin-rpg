@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      1.51
+// @version      1.52
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -124,7 +124,7 @@ function userInfoXp(user, xp) {
 function computeTopScoresStr(scores, num) {
   var scoresArray = [ ];
   for (var user in scores) {
-    scoresArray.push([user, scores[user][0]]);
+    scoresArray.push([user, scores[user][0] !== undefined? scores[user][0] : scores[user]]);
   }
   scoresArray.sort(function(a, b) { return -(a[1] - b[1]); });
   var buildScores = "#rpg HEROES : ";
