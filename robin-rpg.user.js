@@ -322,7 +322,7 @@ function judgeAnswers(answers) {
 
 	//only read #rpg;
 	if(FILTER_CHANNEL) {
-		if(_msg.substring(0,4) !== "#rpg") {
+		if(_msg.substring(0,25).includes("#rpg")) {
 			continue;
 		}
 	}
