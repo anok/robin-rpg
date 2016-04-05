@@ -59,7 +59,7 @@ function parseLoot(lootDb) {
 	}
 }
 
-function loot() {
+function generateLoot() {
 	a = Math.floor(Math.random() * (_l.length));
 	while(_l[a] === undefined) {
 		a = Math.floor(Math.random() * (_l.length));
@@ -196,7 +196,7 @@ function poseSingleQuest(index, timeout) {
 	var buildAnswerMessage = "#rpg ";
 	var runaway = false;	
 	if(_runaway >= NUM_TO_FLEE && (_round.hpleft*100/hptotal) > 70) {
-		buildAnswerMessage += "You fleed " +  _q[index].name + " and it's glorious loot of [" + loot() + "]!";
+		buildAnswerMessage += "You fleed " +  _q[index].name + " and it's glorious loot of [" + _l[generateLoot()] + "]!";
 		_round.hpleft = 0;
 		runaway = true;
 	}
