@@ -306,13 +306,15 @@ function replyCommand() {
 
 function assembleParty(user) {
 	var reply = "THE PARTY: ";
-	reply += userInfoLvl(user);
     partyPeople = _round.party;
     if(partyPeople.length <= 1 && partyPeople[0][0] === user) {
+		reply += userInfoLvl(user);
         reply += ", the lone wolf.";
     } else { 
+		reply += userInfoLvl(user);
         reply += " and... ";
         shuffle(partyPeople);
+		
         reply += partyPeople.map(i => userInfoLvl(i[0])).slice(0, 15).join(", ");
     }
     return reply;
