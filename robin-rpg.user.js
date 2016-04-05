@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      2.2
 // @description  rpg bot ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -135,7 +135,7 @@ function computeTopScoresStr(scores, num) {
     scoresArray.push([user, scores[user][0] !== undefined? scores[user][0] : scores[user]]);
   }
   scoresArray.sort(function(a, b) { return -(a[1] - b[1]); });
-  var buildScores = "#rpg HEROES : ";
+  var buildScores = FILTER+" HEROES : ";
   buildScores += scoresArray.map(i => userInfoLvl(i[0])).slice(0, num).join(", ");
   return buildScores;
 }
@@ -172,7 +172,7 @@ function sendMessage(message) {
   unsafeWindow.$(".text-counter-input").val(truncated_message).trigger("submit");
 }
 function printQuest(index) {
-  sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[⬛⬛⬛⬛⬛]! Attack it by chatting! (you can !flee and get !help)! Join #rpg for 50%+ exp!");
+  sendMessage(FILTER+" A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[⬛⬛⬛⬛⬛]! Attack it by chatting! (you can !flee and get !help)! Join "+ FILTER +" for 50%+ exp!");
 }
 
 function renderHP(hp, hptotal) {
@@ -218,7 +218,7 @@ function filterMessage(_user, _msg) {
 
 	//only read #rpg;
 	if(FILTER_CHANNEL) {
-		if(_msg.substring(0,4) !== "#rpg") {
+		if(_msg.substring(0,4) !== FILTER) {
 			return true;
 		}
 	}
@@ -258,6 +258,11 @@ function listCommands(commands) {
 		continue;
 	}
 	
+	if(_msg.includes("!commands")) {
+		commmandsList.push(["!commands", _user]);
+		continue;
+	}
+	
 	if(_msg.includes("!heroes")) {
 		commmandsList.push(["!heroes", _user]);
 		continue;
@@ -276,7 +281,7 @@ function listCommands(commands) {
 function replyCommand() {
 	setTimeout(function() {
 		var commands = pullNewCommands();
-		commandMessage = "#rpg ";
+		commandMessage = FILTER+" ";
 		commandsList = listCommands(commands);
 		if(commandsList.length > 0) {
 			command = commandsList[0][0];
@@ -293,6 +298,9 @@ function replyCommand() {
 				break;
                 case "!help":
 					commandMessage += "Chat your way to glory! Engrave your name in the hall of !heroes, !loot monsters or just hang out with your !party";
+				break;
+				case "!help":
+					commandMessage += "!loot checks your belongins, !heroes check the hall of fame, !party check your level, !flee runaway";
 				break;
 			}
 			sendMessage(commandMessage);
@@ -317,7 +325,8 @@ function assembleParty(user) {
 		partyPeople = partyPeople.slice(0,15);
 		for(i = 0; i < partyPeople.length; i++) {
 			if(partyPeople[i][0] == user) {
-				partyPeople = partyPeople.splice(i, 1);
+				partyPeople.splice(i, 1);
+				break;
 			}
 		}
         reply += partyPeople.map(i => userInfoLvl(i[0])).slice(0, 15).join(", ");
@@ -338,7 +347,7 @@ function poseSingleQuest(index, timeout) {
 	_round.num++;
     var answers = pullNewAnswers();
     usersScored = judgeAnswers(answers);
-	var buildAnswerMessage = "#rpg ";
+	var buildAnswerMessage = FILTER+" ";
 	var runaway = false;	
 	if(_runaway >= NUM_TO_FLEE && (_round.hpleft*100/hptotal) > 70) {
 		buildAnswerMessage += "You fleed " +  _q[index].name + " and it's glorious loot of [" + _l[generateLoot()] + "]!";
@@ -365,6 +374,7 @@ function poseSingleQuest(index, timeout) {
 		}
 		usersArray.sort(function(a, b) { return -(a[1] - b[1]); });
 		if(usersArray.length === 0) {
+			_runaway++;
 			buildAnswerMessage += "no one :(";
 		}
 		_round.party = usersArray.length > 0 ? usersArray : _round.party;
@@ -424,6 +434,7 @@ function Round(party) {
 	  this.hpleft = 0;
 	  this.lasthit = "";
 	  this.party = party;
+	  this.killed = false;
 }
 
 function poseSeveralQuests(indices, timeout, breaktime) {
@@ -485,15 +496,17 @@ function judgeAnswers(answers) {
 	  _round.hpleft -= _userlevel * _lootbonus * 1;
 	  _round.dmg += _userlevel * _lootbonus * 1;
 	}
-	if(answers[i][1].includes("#rpg")) {
+	if(answers[i][1].includes(FILTER)) {
 		roundExp[_user] += (_ratio * 0.5);
 		_round.hpleft -= _userlevel * _lootbonus * (_ratio * 0.5);
 		_round.dmg += _userlevel  * _lootbonus * (_ratio * 0.5);
 	}
 	
-	if(_round.hpleft <= 0) {
+	if(_round.hpleft <= 0 && _round.killed === false) {
+		console.log("kill bill");
 		roundExp[_user] += 10;
 		_round.lasthit = answers[i][0];
+		_round.killed = true;
 	}
   }
 
