@@ -268,6 +268,11 @@
                 continue;
             }
 
+            if(_msg.includes("!commands")) {
+                commmandsList.push(["!commands", _user]);
+                continue;
+            }
+
         }
 
         return commmandsList;
