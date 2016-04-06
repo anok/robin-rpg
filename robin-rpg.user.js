@@ -6,7 +6,7 @@
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js
-// @require      https://github.com/anok/robin-rpg/raw/cleanup/db.js
+// @require      https://raw.githubusercontent.com/anok/robin-rpg/cleanup/db.js
 // @updateURL    https://github.com/napstr/robin-rpg/raw/master/robin-rpg.user.js
 // ==/UserScript==
 
