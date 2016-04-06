@@ -17,7 +17,7 @@
     var NUM_COMMANDS = 5;
     var COMMANDS_TIMEOUT = 5000;
 
-    var QUESTS_PER_SCORE_DISPLAY = 10;
+QUESTS_PER_SCORE_DISPLAY = 10;
     //var NUM_SCORES_TO_DISPLAY = 15;
 
     var NUM_TO_FLEE = 6;
@@ -210,7 +210,7 @@
         unsafeWindow.$(".text-counter-input").val(truncated_message).trigger("submit");
     }
     function printQuest(index) {
-        sendMessage(FILTER +" A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[⬛⬛⬛⬛⬛]! Attack it by chatting! (you can !flee and get !help)! Join "+FILTER+" for 50%+ exp!");
+  sendMessage(FILTER+" A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[⬛⬛⬛⬛⬛]! Attack it by chatting! (you can !flee and get !help)! Join "+ FILTER +" for 50%+ exp!");
     }
 
     function renderHP(hp, hptotal) {
@@ -256,7 +256,7 @@
 
         //only read FILTER;
         if(FILTER_CHANNEL) {
-            if(_msg.substring(0,4) !== FILTER) {
+		if(_msg.substring(0,4) !== FILTER) {
                 return true;
             }
         }
@@ -296,6 +296,11 @@
                 continue;
             }
 
+	if(_msg.includes("!commands")) {
+		commmandsList.push(["!commands", _user]);
+		continue;
+	}
+	
             if(_msg.includes("!heroes")) {
                 commmandsList.push(["!heroes", _user]);
                 continue;
@@ -319,7 +324,7 @@
     function replyCommand() {
         setTimeout(function() {
             var commands = pullNewCommands();
-            var commandMessage = FILTER  + " ";
+		commandMessage = FILTER+" ";
             var commandsList = listCommands(commands);
             if(commandsList.length > 0) {
                 var command = commandsList[0][0];
@@ -337,6 +342,9 @@
                         break;
                     case "!help":
                         commandMessage += "Each line deals damage, which is based on your level and your loot, other !commands are avaliable.";
+				break;
+				case "!commands":
+					commandMessage += "!loot checks your belongings, !heroes check the hall of fame, !party check your level, !flee runs away.";
                         break;
                     case "!commands":
                         commandMessage += "!loot checks your belongings, !heroes check the hall of fame, !party check your level, !flee runs away.";
@@ -364,8 +372,10 @@
             for(var i = 0; i < partyPeople.length; i++) {
             	if(partyPeople[i][0] == user) {
             		partyPeople = partyPeople.splice(i, 1);
+            		break;
             	}
             }
+		}
             reply += partyPeople.map(i => userInfoLvl(i[0])).slice(0, 15).join(", ");
         }
         return reply;
@@ -384,7 +394,7 @@
             _round.num++;
             var answers = pullNewAnswers();
             var usersScored = judgeAnswers(answers);
-            var buildAnswerMessage = FILTER + " ";
+	var buildAnswerMessage = FILTER+" ";
             var runaway = false;
             if(_runaway >= NUM_TO_FLEE && (_round.hpleft*100/hptotal) > 70) {
                 buildAnswerMessage += "You fleed " +  _q[index].name + " and it's glorious loot of [" + _l[generateLoot()] + "]!";
@@ -411,6 +421,7 @@
                 }
                 usersArray.sort(function(a, b) { return -(a[1] - b[1]); });
                 if(usersArray.length === 0) {
+			_runaway++;
                     buildAnswerMessage += "no one :(";
                 }
                 _round.party = usersArray.length > 0 ? usersArray : _round.party;
@@ -449,7 +460,7 @@
 
         if (_quest_num % QUESTS_PER_SCORE_DISPLAY === 0) {
             setTimeout(function() {
-                sendMessage(FILTER + " Forward, Adventurers! Kill the foes, get the !loot. Deal damage chatting, and level up with your !party. Or just see the !help.");
+      sendMessage(FILTER + " Foward, Adventurers! Kill the foes, get the !loot. Deal damage chatting, and level up with your !party. Or just see the !help.");
             }, timeout + breaktime);
             adj_breaktime = timeout + 2 * breaktime;
         }
@@ -472,6 +483,7 @@
         this.hpleft = 0;
         this.lasthit = "";
         this.party = party;
+	  this.killed = false;
     }
 
     function poseSeveralQuests(indices, timeout, breaktime) {
@@ -533,15 +545,17 @@
                 _round.hpleft -= _userlevel * _lootbonus * _ratio;
                 _round.dmg += _userlevel * _lootbonus * _ratio;
             }
-            if(answers[i][1].includes(FILTER)) {
+	if(answers[i][1].includes(FILTER)) {
                 roundExp[_user] += (_ratio * 0.5);
                 _round.hpleft -= _userlevel * _lootbonus * (_ratio * 0.5);
                 _round.dmg += _userlevel  * _lootbonus * (_ratio * 0.5);
             }
 
-            if(_round.hpleft <= 0) {
+	if(_round.hpleft <= 0 && _round.killed === false) {
+		console.log("kill bill");
                 roundExp[_user] += 10;
                 _round.lasthit = answers[i][0];
+		_round.killed = true;
             }
         }
 
