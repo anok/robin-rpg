@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      2.8
+// @version      2.9
 // @description  rpg bot for reddit robin ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -139,7 +139,7 @@
     }
 
     function computeLevel(xp) {
-        return Math.floor(((Math.sqrt(625+100*xp)-25)/50)+1);
+        return Math.floor(((Math.sqrt(625+100*xp)-25)/50));
     }
 
     function readXp(user) {
@@ -175,7 +175,7 @@
         var xp = readXp(user);
         var level = computeLevel(xp);
         var nextLevel = level + 1;
-        var levelTarget = (25*level)*(1+level);
+        var levelTarget = (25*level*(1+level));
         var nextLevelTarget = (25*nextLevel*(1+nextLevel));
         var nextLevelPercent = ((xp - levelTarget) * 100) / (nextLevelTarget - levelTarget);
         var guild = readGuild(user);
@@ -183,8 +183,8 @@
         if(guild.length > 0) {
             guildBadge = "[" + guild.substring(0,3) + "]";
         }
-        nextLevelPercent = 100-Math.abs(Math.floor(nextLevelPercent));
-        return guildBadge + user + " (" + ((xp !== null ? level : "0") + "/" + nextLevelPercent + "%") + ")";
+        nextLevelPercent =Math.round(nextLevelPercent);
+        return guildBadge + user + " (" + ((xp !== null ? level + 1 : "0") + "/" + nextLevelPercent + "%") + ")";
     }
 
     function guildInfoLvl(guild) {
@@ -195,8 +195,8 @@
         var levelTarget = (25*level)*(1+level);
         var nextLevelTarget = (25*nextLevel*(1+nextLevel));
         var nextLevelPercent = ((xp - levelTarget) * 100) / (nextLevelTarget - levelTarget);
-        nextLevelPercent = 100-Math.abs(Math.floor(nextLevelPercent));
-        return "[" + guild + "(" + ((xp !== null ? level : "0") + "/" + nextLevelPercent + "%") + ")]";
+        nextLevelPercent = Math.round(nextLevelPercent);
+        return "[" + guild + "(" + ((xp !== null ? level + 1 : "0") + "/" + nextLevelPercent + "%") + ")]";
     }
 
 
@@ -750,9 +750,10 @@
             var _userloot = _scores[_user][1];
             var _lootbonus = 1.125 * (_userloot / (_userloot + 60)) + 1;
             var _guild = readGuild(_user);
-            var _guildLevel = 0;
+            var _guildLevel = 1;
+
             if(_guild.length > 0) {
-                _guildLevel = computeLevel(readGuildXp(_guild));
+                _guildLevel += computeLevel(readGuildXp(_guild));
             }
             if(roundExp[_user] === undefined) {
                 roundExp[_user] = 0;
@@ -760,19 +761,18 @@
 
             if(_msg.length > 60) {
                 _ratio = 3;
-                roundExp[_user] += _ratio + _guildLevel;
+                roundExp[_user] += _ratio * _guildLevel;
                 _round.hpleft -= _userlevel * _lootbonus * _ratio;
                 _round.dmg += _userlevel * _lootbonus * _ratio;
             }
             else {
                 _ratio = 1;
-                roundExp[_user] += 1 + _guildLevel;
+                roundExp[_user] += 1 * _guildLevel;
                 _round.hpleft -= _userlevel * _lootbonus * _ratio;
                 _round.dmg += _userlevel * _lootbonus * _ratio;
             }
 
             if(_round.hpleft <= 0 && _round.killed === false) {
-                console.log("kill bill");
                 roundExp[_user] += 10;
                 _round.lasthit = answers[i][0];
                 _round.killed = true;
