@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      2.9
+// @version      3.0
 // @description  rpg bot for reddit robin ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js
-// @require      https://raw.githubusercontent.com/anok/robin-rpg/cleanup/db.js
+// @require      https://raw.githubusercontent.com/anok/robin-rpg/master/db.js
 // @updateURL    https://github.com/napstr/robin-rpg/raw/master/robin-rpg.user.js
 // ==/UserScript==
 
@@ -43,7 +43,7 @@
 
     var _q = [];
     var _l = [];
-    var _hpmul = 1.75;
+    var _hpmul = 3.0;
     var _quest_num = 1;
     var _num_commands = NUM_COMMANDS;
     //var _additional_pause = 0;
