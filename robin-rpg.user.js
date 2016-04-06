@@ -18,12 +18,12 @@
     var COMMANDS_TIMEOUT = 5000;
 
     var QUESTS_PER_SCORE_DISPLAY = 10;
-    var NUM_SCORES_TO_DISPLAY = 15;
+    //var NUM_SCORES_TO_DISPLAY = 15;
 
     var NUM_TO_FLEE = 6;
 
     var FILTER_CHANNEL = true;
-    var FILTER = "%rpg";
+    var FILTER = "#rpg";
     var USER_NAME = "robin-rpgbot";
 
     var SAVE_STRING = "robin-rpg-scores";
@@ -36,7 +36,7 @@
     var _hpmul = 4.5;
     var _quest_num = 1;
     var _num_commands = NUM_COMMANDS;
-    var _additional_pause = 0;
+    //var _additional_pause = 0;
     var _round = {};
     var _runaway = 0;
     var _monsters;
@@ -156,14 +156,14 @@
         }
     }
 
-    function getAdditionalPause() {
-        if (_additional_pause > 0) {
-            var toReturn = _additional_pause;
-            _additional_pause = 0;
-            return toReturn;
-        }
-        return 0;
-    }
+    //function getAdditionalPause() {
+    //    if (_additional_pause > 0) {
+    //        var toReturn = _additional_pause;
+    //        _additional_pause = 0;
+    //        return toReturn;
+    //    }
+    //    return 0;
+    //}
     function sendMessage(message) {
         var truncated_message = message;
         if (truncated_message.length > MAX_MESSAGE_LENGTH) {
@@ -172,7 +172,7 @@
         unsafeWindow.$(".text-counter-input").val(truncated_message).trigger("submit");
     }
     function printQuest(index) {
-        sendMessage("#rpg A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[⬛⬛⬛⬛⬛]! Attack it by chatting! (you can !flee and get !help)! Join #rpg for 50%+ exp!");
+        sendMessage(FILTER +" A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[⬛⬛⬛⬛⬛]! Attack it by chatting! (you can !flee and get !help)! Join "+FILTER+" for 50%+ exp!");
     }
 
     function renderHP(hp, hptotal) {
@@ -240,7 +240,7 @@
 
     function listCommands(commands) {
         var commmandsList = [];
-        var _ratio = 0;
+
         for (var i=0; i<commands.length; ++i) {
             var _user = commands[i][0];
             var _msg = commands[i][1];
@@ -410,10 +410,11 @@
         }
 
         setTimeout(function() {
+            var nextIndex;
             if(_round.hpleft <= 0) {
-                var nextIndex = currentIndex + 1;
+                nextIndex = currentIndex + 1;
             } else {
-                var nextIndex = currentIndex;
+                nextIndex = currentIndex;
             }
             _poseSeveralQuests(indices, timeout, breaktime, nextIndex);
         }, adj_breaktime);
@@ -477,15 +478,15 @@
 
             if(_msg.length > 60) {
                 _ratio = 3;
-                roundExp[_user] += 3;
-                _round.hpleft -= _userlevel * _lootbonus * 3;
-                _round.dmg += _userlevel * _lootbonus * 3;
+                roundExp[_user] += _ratio;
+                _round.hpleft -= _userlevel * _lootbonus * _ratio;
+                _round.dmg += _userlevel * _lootbonus * _ratio;
             }
             else {
                 _ratio = 1;
                 roundExp[_user] += 1;
-                _round.hpleft -= _userlevel * _lootbonus * 1;
-                _round.dmg += _userlevel * _lootbonus * 1;
+                _round.hpleft -= _userlevel * _lootbonus * _ratio;
+                _round.dmg += _userlevel * _lootbonus * _ratio;
             }
             if(answers[i][1].includes(FILTER)) {
                 roundExp[_user] += (_ratio * 0.5);
@@ -502,9 +503,9 @@
         return roundExp;
     }
 
-    function pause(ms) {
-        _additional_pause += ms;
-    }
+    //function pause(ms) {
+    //    _additional_pause += ms;
+    //}
 
     function simpleRpgLoop(q) {
         parseMonsters(q);
