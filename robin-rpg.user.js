@@ -747,8 +747,8 @@
                 _round.party = usersArray.length > 0 ? usersArray : _round.party;
                 var loot = generateLoot();
                 var lootPicker = Math.floor(Math.random()*_round.party.length);
-                buildAnswerMessage += _q[index].name + " is kill! " +  _round.party[lootPicker] + " gets the [" + _l[loot] +"]!";
-                addLoot(_round.lasthit, _l[loot]);
+                buildAnswerMessage += _q[index].name + " is kill! " +  _round.party[lootPicker][0] + " gets the [" + _l[loot] +"]!";
+                addLoot(_round.party[lootPicker][0], _l[loot]);
                 saveLoot(_loot);
                 saveScores(_scores);
                 buildAnswerMessage += " LVLs: ";
