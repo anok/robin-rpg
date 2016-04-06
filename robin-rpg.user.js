@@ -24,7 +24,7 @@
 
     var FILTER_CHANNEL = true;
     var FILTER = "#rpg";
-    var USER_NAME = "robin-rpgbot";
+    var USER_NAME = "robin-rpg";
 
     var SCORE_SAVE_STRING = "robin-rpg-scores";
     var LOOT_SAVE_STRING = "robin-rpg-loot";
