@@ -159,6 +159,10 @@
         return Math.floor(((Math.sqrt(625 + 100 * xp) - 25) / 50));
     }
 
+    function computeLevelGuild(xp) {
+        return Math.floor(((Math.sqrt(25 + 20 * xp) - 5) / 10));
+    }
+
     function readXp(user) {
         if (_scores[user] === undefined) {
             _scores[user] = [0, 0, ""];
@@ -207,10 +211,10 @@
     function guildInfoLvl(guild) {
         //Return xp/lvl.
         var xp = readGuildXp(guild);
-        var level = computeLevel(xp);
+        var level = computeLevelGuild(xp);
         var nextLevel = level + 1;
-        var levelTarget = (25*level)*(1+level);
-        var nextLevelTarget = (25*nextLevel*(1+nextLevel));
+        var levelTarget = (5*level)*(1+level);
+        var nextLevelTarget = (5*nextLevel*(1+nextLevel));
         var nextLevelPercent = ((xp - levelTarget) * 100) / (nextLevelTarget - levelTarget);
         nextLevelPercent = Math.round(nextLevelPercent);
         return "[" + guild + "(" + ((xp !== null ? level + 1 : "0") + "/" + nextLevelPercent + "%") + ")]";
