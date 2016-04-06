@@ -16,7 +16,7 @@
     var TIME_PER_QUEST = 35000;
     var TIME_PER_BREAK = 20000;
     var RETRY_CONNECT = 2000;
-    var NUM_COMMANDS = 4;
+    var NUM_COMMANDS = 3;
     var COMMANDS_TIMEOUT = 6000;
 
     var QUESTS_PER_SCORE_DISPLAY = 10;
@@ -746,7 +746,7 @@
             }
 
             var _xp = readXp(_user);
-            var _userlevel = computeLevel(_xp === undefined? 1 : _xp );
+            var _userlevel = computeLevel(_xp === undefined? 1 : _xp ) + 1;
             var _userloot = _scores[_user][1];
             var _lootbonus = 1.125 * (_userloot / (_userloot + 60)) + 1;
             var _guild = readGuild(_user);
