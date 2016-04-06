@@ -326,7 +326,7 @@
             return true;
         }
 
-        if(BAN_LIST.indexOf(_user) !== -1) {
+        if(BAN_LIST.indexOf(_user) !== -1 && ADMINS.indexOf(_user) === -1) {
             return true;
         }
         if(_user == "[robin]") {
