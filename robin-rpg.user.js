@@ -552,7 +552,9 @@
                         commandMessage += computeTopGuildsStr(_guilds, 15);
                         break;
                 }
-                sendMessage(commandMessage);
+                if(commandMessage.length > FILTER.length + " ") {
+                    sendMessage(commandMessage);
+                }
             }
             if(_num_commands > 0) {
                 _num_commands--;
