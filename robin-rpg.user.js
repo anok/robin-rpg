@@ -662,17 +662,17 @@
                 buildAnswerMessage += usersArray.map(i => userInfoXp(i[0], i[1])).slice(0, 15).join(", ");
             } else if(runaway === false) {
                 //BUILD KILL MONSTER
-                usersScored.sort(function(a, b) { return -(a[1] - b[1]); });
-                var loot = generateLoot();
-                buildAnswerMessage += _q[index].name + " is kill! " +  _round.lasthit + " picks up [" + _l[loot] +"]!";
-                addLoot(_round.lasthit, _l[loot]);
-                saveLoot(_loot);
-                saveScores(_scores);
-                buildAnswerMessage += " LVLs: ";
                 for (user in usersScored) {
                     usersArray.push([user, usersScored[user]]);
                 }
                 usersArray.sort(function(a, b) { return -(a[1] - b[1]); });
+                var loot = generateLoot();
+                var lootPicker = Math.floor(Math.random()*_round.party.length);
+                buildAnswerMessage += _q[index].name + " is kill! " +  _round.party[lootPicker] + " gets the [" + _l[loot] +"]!";
+                addLoot(_round.lasthit, _l[loot]);
+                saveLoot(_loot);
+                saveScores(_scores);
+                buildAnswerMessage += " LVLs: ";
                 buildAnswerMessage  += usersArray.map(i => userInfoLvl(i[0])).slice(0, 15).join(", ");
                 _round = new Round(_round.party);
                 _runaway = 0;
