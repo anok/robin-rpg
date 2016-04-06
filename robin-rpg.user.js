@@ -5,7 +5,7 @@
 // @description  rpg bot for reddit robin ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
-// @require      http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js
 // @updateURL    https://github.com/napstr/robin-rpg/raw/master/robin-rpg.user.js
 // ==/UserScript==
 (function() {
