@@ -694,7 +694,7 @@
 
         if (_quest_num % QUESTS_PER_SCORE_DISPLAY === 0) {
             setTimeout(function() {
-                sendMessage(FILTER + " Foward, Adventurers! Kill the foes, get the !loot. Deal damage chatting, and level up with your !party. Or just see the !help.");
+                sendMessage(FILTER + " Forward, Adventurers! Kill the foes, get the !loot. Deal damage chatting, and level up with your !party. Or just see the !help.");
             }, timeout + breaktime);
             adj_breaktime = timeout + 2 * breaktime;
         }
