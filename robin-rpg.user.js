@@ -522,7 +522,7 @@
         var currentLoot = readLootAmount(user);
 
         if(currentLoot < GUILD_COST) {
-            return user + ": insuficent funds to build a guild hall and a vault!";
+            return user + ": insuficent funds to build a guild hall and a vault! You need " + (5 - currentLoot) + " more loot.";
         }
 
         _scores[user][1] -= 5;
@@ -557,7 +557,7 @@
         }
 
         if(currentLoot == 0) {
-            return user + ": You currently cannot contribute with [" + currentGuild + "], go kill something!";
+            return user + ": You currently cannot contribute with [" +  guildInfoLvl(currentGuild) + "], go kill something!";
         }
 
         var reply = "";
