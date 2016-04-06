@@ -579,11 +579,11 @@
         var partyPeople = _round.party;
         var guild = "";
         if(readGuild(user).length > 0) {
-            guild = "from " + guildInfoLvl(readGuild(user));
+            guild = " from " + guildInfoLvl(readGuild(user));
         }
         if(partyPeople.length <= 1 && partyPeople[0][0] === user) {
             reply += userInfoLvl(user);
-            reply += ", the lone wolf " + guild + ".";
+            reply += ", the lone wolf" + guild + ".";
         } else {
             reply += userInfoLvl(user) + guild;
             reply += " and... ";
