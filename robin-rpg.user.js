@@ -372,7 +372,7 @@
             partyPeople = partyPeople.slice(0,15);
             for(var i = 0; i < partyPeople.length; i++) {
                 if(partyPeople[i][0] == user) {
-                    partyPeople = partyPeople.splice(i, 1);
+                    partyPeople.splice(i, 1);
                     break;
                 }
             }
