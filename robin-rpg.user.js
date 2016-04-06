@@ -139,7 +139,7 @@
     }
 
     function computeLevel(xp) {
-        return Math.floor(((Math.sqrt(625+100*xp)-25)/50));
+        return Math.floor(((Math.sqrt(625 + 100 * xp) - 25) / 50));
     }
 
     function readXp(user) {
@@ -405,8 +405,9 @@
                     continue;
                 }
 
-                if(_msg.includes("!deposit")) {
-                    commandsList.push(["!deposit", _user]);
+                if(_msg.substring(pos, pos+"deposit".length) === "deposit") {
+                    pos += "deposit".length + 1;
+                    commandsList.push(["!deposit", _user, _msg.substring(pos)]);
                     continue;
                 }
 
@@ -466,7 +467,8 @@
                         commandMessage += createGuild(command_user, command_guild);
                         break;
                     case "!deposit":
-                        commandMessage += depositGuild(command_user);
+                        command_guild = commandsList[0][2];
+                        commandMessage += depositGuild(command_user, command_guild);
                         break;
                     case "!guilds":
                         commandMessage += computeTopGuildsStr(_guilds, 15);
@@ -542,7 +544,7 @@
         return reply;
     }
 
-    function depositGuild(user) {
+    function depositGuild(user, ammountStr) {
         if (_scores[user] === undefined) {
             _scores[user] = [0,0, ""];
         } else if (_scores[user][2] === undefined) {
@@ -552,19 +554,31 @@
         var currentGuild = _scores[user][2];
         var currentLoot = readLootAmount(user);
 
+        var ammount = 0;
+        if (ammountStr !== "") {
+            ammount = parseInt(ammountStr);
+        } else {
+            ammount = currentLoot;
+        }
+
         if(currentGuild === "") {
             return user + ": You currently are not in a guild. List the top ones in !guilds";
         }
 
-        if(currentLoot == 0) {
-            return user + ": You currently cannot contribute with [" +  guildInfoLvl(currentGuild) + "], go kill something!";
+        if(currentLoot === 0) {
+            return user + ": You currently cannot contribute with " +  guildInfoLvl(currentGuild) + ", go kill something!";
         }
+
+        if(ammount > currentLoot) {
+            return user + ": You don't have " + ammount + " to deposit in " +  guildInfoLvl(currentGuild) + " vault!";
+        }
+
 
         var reply = "";
         if(_guilds[currentGuild] !== undefined) {
-            _scores[user][1] -= currentLoot;
-            _guilds[currentGuild][0] += currentLoot;
-            reply = user + " deposited " + currentLoot + " in [" + guildInfoLvl(currentGuild) + "] vault!";
+            _scores[user][1] -= ammount;
+            _guilds[currentGuild][0] += ammount;
+            reply = user + " deposited " + ammount + " loot in " + guildInfoLvl(currentGuild) + " vault!";
         }
 
         saveGuilds(_guilds);
@@ -767,7 +781,7 @@
             }
             else {
                 _ratio = 1;
-                roundExp[_user] += 1 * _guildLevel;
+                roundExp[_user] += _guildLevel;
                 _round.hpleft -= _userlevel * _lootbonus * _ratio;
                 _round.dmg += _userlevel * _lootbonus * _ratio;
             }
