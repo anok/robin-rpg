@@ -602,7 +602,7 @@
         var currentLoot = readLootAmount(user);
 
         if(currentLoot < GUILD_COST) {
-            return user + ": insuficent funds to build a guild hall and a vault! You need " + (5 - currentLoot) + " more loot.";
+            return user + ": insufficient funds to build a guild hall and a vault! You need " + (5 - currentLoot) + " more loot.";
         }
 
         _scores[user][1] -= 5;
@@ -611,7 +611,7 @@
 
         var reply = "";
         if(currentGuild === "")
-            reply = user + " creates [" + guild + "]! Members can !deposit loot to the vault, to recieve bonus XP!";
+            reply = user + " creates [" + guild + "]! Members can !deposit loot to the vault, to receive bonus XP!";
         else {
             reply = user + " leaves [" + currentGuild + "] to create [" + guild + "]!";
         }
@@ -708,7 +708,7 @@
             var buildAnswerMessage = FILTER+" ";
             var runaway = false;
             if(_runaway >= NUM_TO_FLEE && (_round.hpleft*100/hptotal) > 70) {
-                buildAnswerMessage += "You fleed " +  _q[index].name + " and it's glorious loot of [" + _l[generateLoot()] + "]!";
+                buildAnswerMessage += "You fled " +  _q[index].name + " and it's glorious loot of [" + _l[generateLoot()] + "]!";
                 _round.hpleft = 0;
                 _runaway = 0;
                 runaway = true;
