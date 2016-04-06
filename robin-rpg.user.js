@@ -32,11 +32,13 @@
     var SCORE_SAVE_STRING = "robin-rpg-scores";
     var LOOT_SAVE_STRING = "robin-rpg-loot";
     var GUILD_SAVE_STRING = "robin-rpg-guild";
+    var BANLIST_SAVE_STRING = "robin-rpg-banlist";
 
     var GUILD_NAME_LENGTH = 8;
     var GUILD_COST = 5;
 
     var BAN_LIST = [];
+    var ADMINS = ["anokrs", "npst0r", "n4pstr"];
 
 
     var _q = [];
@@ -118,6 +120,17 @@
         return _loot;
     }
 
+    //loads the banlist
+    function loadBanlist() {
+        var banlistText = localStorage[BANLIST_SAVE_STRING];
+        if(banlistText) {
+            BAN_LIST = JSON.parse(banlistText);
+        } else {
+            BAN_LIST = [];
+        }
+        return BAN_LIST;
+    }
+
     function loadGuilds() {
         var guildsText = localStorage[GUILD_SAVE_STRING];
         if(guildsText) {
@@ -136,6 +149,10 @@
 
     function saveScores(scores) {
         localStorage[SCORE_SAVE_STRING] = JSON.stringify(scores);
+    }
+
+    function saveBanList(banlist) {
+        localStorage[BANLIST_SAVE_STRING] = JSON.stringify(banlist);
     }
 
     function computeLevel(xp) {
@@ -389,6 +406,28 @@
                 continue;
             }
 
+            //BAN_LIST system
+            var pos = FILTER.length + 2;
+            if(_msg.substring(0, pos) === FILTER + " !") {
+                if(_msg.substring(pos, pos+"ban ".length) === "ban ") {
+                    pos += "ban ".length;
+                    commandsList.push(["!ban", _user, _msg.substring(pos)]);
+                    continue;
+                }
+
+                if(_msg.substring(pos, pos+"unban ".length) === "unban ") {
+                    pos += "unban ".length;
+                    commandsList.push(["!unban", _user, _msg.substring(pos)]);
+                    continue;
+                }
+
+                if(_msg.substring(pos, pos+"banlist".length) === "banlist") {
+                    pos += "banlist".length + 1;
+                    commandsList.push(["!banlist", _user]);
+                    continue;
+                }
+            }
+
             //GUILD COMMAND SUB-SYSTEM
             //only accepts messages that starts with the command
             var pos = FILTER.length + 2;
@@ -456,6 +495,45 @@
                         break;
                     case "!commands":
                         commandMessage += "!loot checks your belongings, !heroes check the hall of fame, !party check your level, !flee runs away.";
+                        break;
+
+                    case "!ban":
+                        if (ADMINS.indexOf(command_user) > -1) {
+                            var userbanned = commandsList[0][2];
+
+                            if (BAN_LIST.indexOf(userbanned) > -1) {
+                                commandMessage += "User " + userbanned + " is already banned.";
+                            } else {
+                                commandMessage += "User " + userbanned + " banned from playing by " + command_user + "!";
+                                BAN_LIST.push(userbanned);
+                                saveBanList(BAN_LIST);
+                            }
+                        }
+                        break;
+
+                    case "!unban":
+                        if (ADMINS.indexOf(command_user) > -1) {
+                            var userunbanned = commandsList[0][2];
+                            var banlistIndex = BAN_LIST.indexOf(userunbanned);
+                            if (banlistIndex == -1) {
+                                commandMessage += "User " + userunbanned + " is not banned.";
+                            } else {
+                                commandMessage += "User " + userunbanned + " unbanned by " + command_user + "!";
+                                BAN_LIST.splice(banlistIndex, 1);
+                                saveBanList(BAN_LIST);
+                            }
+                        }
+                        break;
+
+                    case "!banlist":
+                        if (ADMINS.indexOf(command_user) > -1) {
+                            commandMessage += " banlist: ";
+                            if (BAN_LIST.length == 0) {
+                                commandMessage += "is empty";
+                            }
+                            for (var i = 0; i < BAN_LIST.length; i++)
+                                commandMessage += BAN_LIST[i] + " ";
+                        }
                         break;
 
                     case "!join": // DONE
@@ -811,6 +889,7 @@
         _round = new Round([]);
         loadScores();
         loadLoot();
+        loadBanlist();
         loadGuilds();
         shuffle(r);
         poseSeveralQuests(r, TIME_PER_QUEST, TIME_PER_BREAK);
