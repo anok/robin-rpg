@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      3.1
 // @description  rpg bot for reddit robin ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -33,6 +33,7 @@
     var LOOT_SAVE_STRING = "robin-rpg-loot";
     var GUILD_SAVE_STRING = "robin-rpg-guild";
     var BANLIST_SAVE_STRING = "robin-rpg-banlist";
+    var ADMINS_SAVE_STRING = "robin-rpg-admins";
 
     var GUILD_NAME_LENGTH = 8;
     var GUILD_COST = 5;
@@ -87,7 +88,6 @@
         _scores[user][1] += 1;
 
         _loot[user] = lootstr;
-
     }
 
     //loads players scores
@@ -131,6 +131,15 @@
         return BAN_LIST;
     }
 
+    //loads the admins
+    function loadAdmins() {
+        var adminsText = localStorage[ADMINS_SAVE_STRING];
+        if(adminsText) {
+            ADMINS = JSON.parse(adminsText);
+        }
+        return ADMINS;
+    }
+
     function loadGuilds() {
         var guildsText = localStorage[GUILD_SAVE_STRING];
         if(guildsText) {
@@ -153,6 +162,10 @@
 
     function saveBanList(banlist) {
         localStorage[BANLIST_SAVE_STRING] = JSON.stringify(banlist);
+    }
+
+    function saveAdmins(admins) {
+        localStorage[ADMINS_SAVE_STRING] = JSON.stringify(admins);
     }
 
     function computeLevel(xp) {
@@ -243,7 +256,9 @@
     function computeTopScoresStr(scores, num) {
         var scoresArray = [ ];
         for (var user in scores) {
-            scoresArray.push([user, readXp(user)]);
+            if(BAN_LIST.indexOf(user) === -1) {
+                scoresArray.push([user, readXp(user)]);
+            }
         }
         scoresArray.sort(function(a, b) { return -(a[1] - b[1]); });
         var buildScores = FILTER + " HEROES : ";
@@ -410,7 +425,7 @@
                 continue;
             }
 
-            //BAN_LIST system
+            //BAN_LIST and ADMINS system
             var pos = FILTER.length + 2;
             if(_msg.substring(0, pos) === FILTER + " !") {
                 if(_msg.substring(pos, pos+"ban ".length) === "ban ") {
@@ -428,6 +443,30 @@
                 if(_msg.substring(pos, pos+"banlist".length) === "banlist") {
                     pos += "banlist".length + 1;
                     commandsList.push(["!banlist", _user]);
+                    continue;
+                }
+
+                if(_msg.substring(pos, pos+"promote".length) === "promote") {
+                    pos += "promote ".length;
+                    commandsList.push(["!promote", _user, _msg.substring(pos)]);
+                    continue;
+                }
+
+                if(_msg.substring(pos, pos+"demote".length) === "demote") {
+                    pos += "demote ".length;
+                    commandsList.push(["!demote", _user, _msg.substring(pos)]);
+                    continue;
+                }
+
+                if(_msg.substring(pos, pos+"admins".length) === "admins") {
+                    pos += "admins".length + 1;
+                    commandsList.push(["!admins", _user]);
+                    continue;
+                }
+
+                if(_msg.substring(pos, pos+"deleteuser".length) === "deleteuser") {
+                    pos += "deleteuser ".length;
+                    commandsList.push(["!deleteuser", _user, _msg.substring(pos)]);
                     continue;
                 }
             }
@@ -540,6 +579,53 @@
                         }
                         break;
 
+                    case "!demote":
+                        if (ADMINS.indexOf(command_user) > -1) {
+                            var demotedUser = commandsList[0][2];
+                            var adminIndex = ADMINS.indexOf(demotedUser);
+                            if (adminIndex === -1) {
+                                commandMessage += "User " + demotedUser + " is not an admin.";
+                            } else {
+                                commandMessage += "User " + demotedUser + " demoted by " + command_user + "!";
+                                ADMINS.splice(adminIndex, 1);
+                                saveAdmins(ADMINS);
+                            }
+                        }
+                        break;
+
+                    case "!promote":
+                    if (ADMINS.indexOf(command_user) > -1) {
+                        var promotedUser = commandsList[0][2];
+
+                        if (ADMINS.indexOf(promotedUser) > -1) {
+                            commandMessage += "User " + promotedUser + " is already admin.";
+                        } else {
+                            commandMessage += "User " + promotedUser + " promoted to admin by " + command_user + "!";
+                            ADMINS.push(promotedUser);
+                            saveAdmins(ADMINS);
+                        }
+                    }
+                    break;
+
+                    case "!admins":
+                        if (ADMINS.indexOf(command_user) > -1) {
+                            commandMessage += " admins: ";
+                            if (ADMINS.length == 0) {
+                                commandMessage += "is empty";
+                            }
+                            for (var i = 0; i < ADMINS.length; i++)
+                                commandMessage += ADMINS[i] + " ";
+                        }
+                        break;
+
+                    case "!deleteuser":
+                        if (ADMINS.indexOf(command_user) > -1) {
+                            delete _scores[commandsList[0][2]];
+                            commandMessage += " user " + commandsList[0][2] + " deleted";
+                            saveScores(_scores);
+                        }
+                        break;
+
                     case "!join": // DONE
                         command_guild = commandsList[0][2];
                         commandMessage += joinGuild(command_user, command_guild);
@@ -583,6 +669,9 @@
         var reply = "";
         if(currentGuild === "")
             reply = user + " joins [" + guild + "]! Your !deposit will count towards it's level.";
+        else if (guild === currentGuild) {
+            reply = user + " is already part of the glorious [" + guild + "]";
+        }
         else {
             reply = user + " leaves [" + currentGuild + "] to join [" + guild + "]!";
         }
@@ -755,8 +844,10 @@
                 _round.party = usersArray;
                 var loot = generateLoot();
                 var lootPicker = Math.floor(Math.random()*_round.party.length);
-                buildAnswerMessage += _q[index].name + " is kill! " +  _round.party[lootPicker][0] + " gets the [" + _l[loot] +"]!";
+                buildAnswerMessage += _q[index].name + " is kill! " +  _round.party[lootPicker][0] + " gets the [" + _l[loot] +"]";
                 addLoot(_round.party[lootPicker][0], _l[loot]);
+                var lootTotal = readLootAmount(_round.party[lootPicker][0]);
+                buildAnswerMessage += "(" + lootTotal + ")!";
                 saveLoot(_loot);
                 saveScores(_scores);
                 buildAnswerMessage += " LVLs: ";
@@ -906,6 +997,7 @@
         loadLoot();
         loadBanlist();
         loadGuilds();
+        loadAdmins();
         shuffle(r);
         poseSeveralQuests(r, TIME_PER_QUEST, TIME_PER_BREAK);
     }

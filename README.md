@@ -28,4 +28,9 @@ To run it, use robin grow(not parrot) and don't filter the chat.
  * **!ban** _user_ - Bans a user from using the bot
  * **!unban** _user_ - Unbans a user from using the bot
  * **!banlist** - Shows a list of banned users.
+ * **!promote** _user_ - Promotes a user to admin status
+ * **!demote** _user_ - Demotes a user from admin to regular status
+ * **!admins** - Shows a list of all admin users.
+ * **!deleteuser** _user - Deletes the data for a player
+
 Includes: some anti-spam, some channel filters. 
