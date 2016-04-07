@@ -330,7 +330,7 @@
             return true;
         }
 
-        if(BAN_LIST.indexOf(_user) !== -1) {
+        if(BAN_LIST.indexOf(_user) !== -1 && ADMINS.indexOf(_user) === -1) {
             return true;
         }
         if(_user == "[robin]") {
@@ -644,12 +644,7 @@
         var currentGuild = _scores[user][2];
         var currentLoot = readLootAmount(user);
 
-        var ammount = 0;
-        if (ammountStr !== "") {
-            ammount = parseInt(ammountStr);
-        } else {
-            ammount = currentLoot;
-        }
+        var ammount = parseInt(ammountStr) || currentLoot;
 
         if(currentGuild === "") {
             return user + ": You currently are not in a guild. List the top ones in !guilds";
