@@ -88,7 +88,6 @@
         _scores[user][1] += 1;
 
         _loot[user] = lootstr;
-
     }
 
     //loads players scores
@@ -845,8 +844,10 @@
                 _round.party = usersArray.length > 0 ? usersArray : _round.party;
                 var loot = generateLoot();
                 var lootPicker = Math.floor(Math.random()*_round.party.length);
-                buildAnswerMessage += _q[index].name + " is kill! " +  _round.party[lootPicker][0] + " gets the [" + _l[loot] +"]!";
+                buildAnswerMessage += _q[index].name + " is kill! " +  _round.party[lootPicker][0] + " gets the [" + _l[loot] +"]";
                 addLoot(_round.party[lootPicker][0], _l[loot]);
+                var lootTotal = readLootAmount(_round.party[lootPicker][0]);
+                buildAnswerMessage = "(" + lootTotal + ")!";
                 saveLoot(_loot);
                 saveScores(_scores);
                 buildAnswerMessage += " LVLs: ";
