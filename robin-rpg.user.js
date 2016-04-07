@@ -493,6 +493,12 @@
                     continue;
                 }
 
+                if(_msg.substring(pos, pos+"depall".length) === "depall") {
+                    pos += "depall".length + 1;
+                    commandsList.push(["!depall", _user]);
+                    continue;
+                }
+
                 if(_msg.includes("!guilds")) {
                     commandsList.push(["!guilds", _user]);
                 }
@@ -514,9 +520,9 @@
                 var command_guild;
                 switch(command) {
                     case "!loot":
-                        var _lootAmmount = readLootAmount(command_user);
-                        if(_lootAmmount > 0) {
-                            commandMessage += command_user + " bag of holding contains " + _lootAmmount + " shiny things! ";
+                        var _lootAmount = readLootAmount(command_user);
+                        if(_lootAmount > 0) {
+                            commandMessage += command_user + " bag of holding contains " + _lootAmount + " shiny things! ";
                             var _lootName = readLootItems(command_user);
                             if(_lootName.length > 0) {
                                 commandMessage += "A [" + _lootName + "] surfaces in it...";
@@ -638,6 +644,9 @@
                         command_guild = commandsList[0][2];
                         commandMessage += depositGuild(command_user, command_guild);
                         break;
+                    case "!depall":
+                        commandMessage += depositGuild(command_user, "all");
+                        break;
                     case "!guilds":
                         commandMessage += computeTopGuildsStr(_guilds, 15);
                         break;
@@ -723,7 +732,7 @@
         return reply;
     }
 
-    function depositGuild(user, ammountStr) {
+    function depositGuild(user, amountStr) {
         if (_scores[user] === undefined) {
             _scores[user] = [0,0, ""];
         } else if (_scores[user][2] === undefined) {
@@ -733,7 +742,8 @@
         var currentGuild = _scores[user][2];
         var currentLoot = readLootAmount(user);
 
-        var ammount = parseInt(ammountStr) || currentLoot;
+        var amount = parseInt(amountStr) || 1;
+        if (amountStr === "all") amount = currentLoot;
 
         if(currentGuild === "") {
             return user + ": You currently are not in a guild. List the top ones in !guilds";
@@ -743,16 +753,16 @@
             return user + ": You currently cannot contribute with " +  guildInfoLvl(currentGuild) + ", go kill something!";
         }
 
-        if(ammount > currentLoot) {
-            return user + ": You don't have " + ammount + " to deposit in " +  guildInfoLvl(currentGuild) + " vault!";
+        if(amount > currentLoot) {
+            return user + ": You don't have " + amount + " to deposit in " +  guildInfoLvl(currentGuild) + " vault!";
         }
 
 
         var reply = "";
         if(_guilds[currentGuild] !== undefined) {
-            _scores[user][1] -= ammount;
-            _guilds[currentGuild][0] += ammount;
-            reply = user + " deposited " + ammount + " loot in " + guildInfoLvl(currentGuild) + " vault!";
+            _scores[user][1] -= amount;
+            _guilds[currentGuild][0] += amount;
+            reply = user + " deposited " + amount + " loot in " + guildInfoLvl(currentGuild) + " vault!";
         }
 
         saveGuilds(_guilds);
