@@ -257,7 +257,7 @@
     function computeTopScoresStr(scores, num) {
         var scoresArray = [ ];
         for (var user in scores) {
-            if(BAN_LIST.indexOf(user) !== -1) {
+            if(BAN_LIST.indexOf(user) === -1) {
                 scoresArray.push([user, readXp(user)]);
             }
         }
