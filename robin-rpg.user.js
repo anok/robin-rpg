@@ -33,6 +33,7 @@
     var LOOT_SAVE_STRING = "robin-rpg-loot";
     var GUILD_SAVE_STRING = "robin-rpg-guild";
     var BANLIST_SAVE_STRING = "robin-rpg-banlist";
+    var ADMINS_SAVE_STRING = "robin-rpg-admins";
 
     var GUILD_NAME_LENGTH = 8;
     var GUILD_COST = 5;
@@ -131,6 +132,15 @@
         return BAN_LIST;
     }
 
+    //loads the admins
+    function loadAdmins() {
+        var adminsText = localStorage[ADMINS_SAVE_STRING];
+        if(adminsText) {
+            ADMINS = JSON.parse(adminsText);
+        }
+        return ADMINS;
+    }
+
     function loadGuilds() {
         var guildsText = localStorage[GUILD_SAVE_STRING];
         if(guildsText) {
@@ -153,6 +163,10 @@
 
     function saveBanList(banlist) {
         localStorage[BANLIST_SAVE_STRING] = JSON.stringify(banlist);
+    }
+
+    function saveAdmins(admins) {
+        localStorage[ADMINS_SAVE_STRING] = JSON.stringify(admins);
     }
 
     function computeLevel(xp) {
@@ -406,7 +420,7 @@
                 continue;
             }
 
-            //BAN_LIST system
+            //BAN_LIST and ADMINS system
             var pos = FILTER.length + 2;
             if(_msg.substring(0, pos) === FILTER + " !") {
                 if(_msg.substring(pos, pos+"ban ".length) === "ban ") {
@@ -424,6 +438,24 @@
                 if(_msg.substring(pos, pos+"banlist".length) === "banlist") {
                     pos += "banlist".length + 1;
                     commandsList.push(["!banlist", _user]);
+                    continue;
+                }
+
+                if(_msg.substring(pos, pos+"promote".length) === "promote") {
+                    pos += "promote ".length;
+                    commandsList.push(["!promote", _user, _msg.substring(pos)]);
+                    continue;
+                }
+
+                if(_msg.substring(pos, pos+"demote".length) === "demote") {
+                    pos += "demote ".length;
+                    commandsList.push(["!demote", _user, _msg.substring(pos)]);
+                    continue;
+                }
+
+                if(_msg.substring(pos, pos+"admins".length) === "admins") {
+                    pos += "admins".length + 1;
+                    commandsList.push(["!admins", _user]);
                     continue;
                 }
             }
@@ -533,6 +565,45 @@
                             }
                             for (var i = 0; i < BAN_LIST.length; i++)
                                 commandMessage += BAN_LIST[i] + " ";
+                        }
+                        break;
+
+                    case "!demote":
+                        if (ADMINS.indexOf(command_user) > -1) {
+                            var demotedUser = commandsList[0][2];
+                            var adminIndex = ADMINS.indexOf(demotedUser);
+                            if (adminIndex === -1) {
+                                commandMessage += "User " + demotedUser + " is not an admin.";
+                            } else {
+                                commandMessage += "User " + demotedUser + " demoted by " + command_user + "!";
+                                ADMINS.splice(adminIndex, 1);
+                                saveAdmins(ADMINS);
+                            }
+                        }
+                        break;
+
+                    case "!promote":
+                    if (ADMINS.indexOf(command_user) > -1) {
+                        var promotedUser = commandsList[0][2];
+
+                        if (ADMINS.indexOf(promotedUser) > -1) {
+                            commandMessage += "User " + promotedUser + " is already admin.";
+                        } else {
+                            commandMessage += "User " + promotedUser + " promoted to admin by " + command_user + "!";
+                            ADMINS.push(promotedUser);
+                            saveAdmins(ADMINS);
+                        }
+                    }
+                    break;
+
+                    case "!admins":
+                        if (ADMINS.indexOf(command_user) > -1) {
+                            commandMessage += " admins: ";
+                            if (ADMINS.length == 0) {
+                                commandMessage += "is empty";
+                            }
+                            for (var i = 0; i < ADMINS.length; i++)
+                                commandMessage += ADMINS[i] + " ";
                         }
                         break;
 
@@ -892,6 +963,7 @@
         loadLoot();
         loadBanlist();
         loadGuilds();
+        loadAdmins();
         shuffle(r);
         poseSeveralQuests(r, TIME_PER_QUEST, TIME_PER_BREAK);
     }
