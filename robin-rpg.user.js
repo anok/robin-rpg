@@ -752,7 +752,7 @@
                     usersArray.push([user, usersScored[user]]);
                 }
                 usersArray.sort(function(a, b) { return -(a[1] - b[1]); });
-                _round.party = usersArray.length > 0 ? usersArray : _round.party;
+                _round.party = usersArray;
                 var loot = generateLoot();
                 var lootPicker = Math.floor(Math.random()*_round.party.length);
                 buildAnswerMessage += _q[index].name + " is kill! " +  _round.party[lootPicker][0] + " gets the [" + _l[loot] +"]!";
