@@ -253,7 +253,9 @@
     function computeTopScoresStr(scores, num) {
         var scoresArray = [ ];
         for (var user in scores) {
-            scoresArray.push([user, readXp(user)]);
+            if(BAN_LIST.indexOf(user) !== -1 && ADMINS.indexOf(user) === -1) {
+                scoresArray.push([user, readXp(user)]);
+            }
         }
         scoresArray.sort(function(a, b) { return -(a[1] - b[1]); });
         var buildScores = FILTER + " HEROES : ";
