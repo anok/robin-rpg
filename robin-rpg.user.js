@@ -648,6 +648,9 @@
         var reply = "";
         if(currentGuild === "")
             reply = user + " joins [" + guild + "]! Your !deposit will count towards it's level.";
+        else if (guild === currentGuild) {
+            reply = user + " is already part of the glorious [" + guild + "]";
+        }
         else {
             reply = user + " leaves [" + currentGuild + "] to join [" + guild + "]!";
         }
