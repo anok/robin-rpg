@@ -39,7 +39,7 @@
     var GUILD_COST = 5;
 
     var BAN_LIST = [];
-    var ADMINS = ["anokrs", "npst0r", "n4pstr"];
+    var ADMINS = ["anokrs", "npst0r"];
 
 
     var _q = [];
