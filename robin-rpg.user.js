@@ -237,7 +237,7 @@
         if(guild.length > 0) {
             guildBadge = "[" + guild.substring(0,3) + "]";
         }
-        return guildBadge + user + " (" + (xp !== null ? xp : "0") + ")";
+        return guildBadge + user + " (" + (xp !== null ? Math.round(xp) : "0") + ")";
     }
 
     function computeTopScoresStr(scores, num) {
@@ -438,7 +438,7 @@
             if(_msg.substring(0, pos) === "#rpg !") {
                 if(_msg.substring(pos, pos+"create".length) === "create") {
                     pos += "create".length + 1;
-                    commandsList.push(["!create", _user, _msg.substring(pos, pos+GUILD_NAME_LENGTH)]);
+                    commandsList.push(["!create", _user, _msg.substring(pos)]);
                     continue;
                 }
 
@@ -598,8 +598,14 @@
             _scores[user][2] = "";
         }
         if (guild.length <= 0) {
-            return user + " can't join this guild!";
+            return user + " can't create a unnamed guild!";
         }
+        var guildFullName = guild;
+
+        if (guild.length > 8) {
+            guild = guild.substring(0,8)
+        }
+
         if(_guilds[guild] !== undefined) {
             return user + ": " + guildInfoLvl(guild) +" already exists! Why don't you !join it?";
         }
@@ -613,7 +619,7 @@
 
         _scores[user][1] -= 5;
         _scores[user][2] = guild;
-        _guilds[guild] = [5, user];
+        _guilds[guild] = [5, user, guildFullName];
 
         var reply = "";
         if(currentGuild === "")
@@ -702,6 +708,7 @@
         if(_round.num === 0) {
             printQuest(index);
             _round.hpleft = hptotal;
+            _round.name = _q[index].name;
         } else {
             _round.dmg = 0;
         }
@@ -797,6 +804,7 @@
     }
 
     function Round(party) {
+        this.name = "";
         this.num = 0;
         this.dmg = 0;
         this.hpleft = 0;
@@ -850,6 +858,11 @@
             var _lootbonus = 1.125 * (_userloot / (_userloot + 60)) + 1;
             var _guild = readGuild(_user);
             var _guildLevel = 1;
+            var _monsterNameBonus = 1;
+
+            if(_round.name !== "" && _msg.includes(_round.name)) {
+                _monsterNameBonus = 1.25;
+            }
 
             if(_guild.length > 0) {
                 _guildLevel += computeLevel(readGuildXp(_guild));
@@ -860,13 +873,13 @@
 
             if(_msg.length > 60) {
                 _ratio = 3;
-                roundExp[_user] += _ratio * _guildLevel;
+                roundExp[_user] += _ratio * _guildLevel * _monsterNameBonus;
                 _round.hpleft -= _userlevel * _lootbonus * _ratio;
                 _round.dmg += _userlevel * _lootbonus * _ratio;
             }
             else {
                 _ratio = 1;
-                roundExp[_user] += _guildLevel;
+                roundExp[_user] += _ratio * _guildLevel * _monsterNameBonus;
                 _round.hpleft -= _userlevel * _lootbonus * _ratio;
                 _round.dmg += _userlevel * _lootbonus * _ratio;
             }
