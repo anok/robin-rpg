@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Robin rpg bot
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      3.1
 // @description  rpg bot for reddit robin ;3 based on /u/npinsker trivia bot
 // @author       /u/anokrs
 // @include      https://www.reddit.com/robin*
@@ -847,7 +847,7 @@
                 buildAnswerMessage += _q[index].name + " is kill! " +  _round.party[lootPicker][0] + " gets the [" + _l[loot] +"]";
                 addLoot(_round.party[lootPicker][0], _l[loot]);
                 var lootTotal = readLootAmount(_round.party[lootPicker][0]);
-                buildAnswerMessage = "(" + lootTotal + ")!";
+                buildAnswerMessage += "(" + lootTotal + ")!";
                 saveLoot(_loot);
                 saveScores(_scores);
                 buildAnswerMessage += " LVLs: ";
