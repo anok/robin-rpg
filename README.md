@@ -31,5 +31,6 @@ To run it, use robin grow(not parrot) and don't filter the chat.
  * **!promote** _user_ - Promotes a user to admin status
  * **!demote** _user_ - Demotes a user from admin to regular status
  * **!admins** - Shows a list of all admin users.
+ * **!deleteuser** _user - Deletes the data for a player
 
 Includes: some anti-spam, some channel filters. 

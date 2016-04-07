@@ -458,6 +458,12 @@
                     commandsList.push(["!admins", _user]);
                     continue;
                 }
+
+                if(_msg.substring(pos, pos+"deleteuser".length) === "deleteuser") {
+                    pos += "deleteuser ".length;
+                    commandsList.push(["!deleteuser", _user, _msg.substring(pos)]);
+                    continue;
+                }
             }
 
             //GUILD COMMAND SUB-SYSTEM
@@ -604,6 +610,14 @@
                             }
                             for (var i = 0; i < ADMINS.length; i++)
                                 commandMessage += ADMINS[i] + " ";
+                        }
+                        break;
+
+                    case "!deleteuser":
+                        if (ADMINS.indexOf(command_user) > -1) {
+                            delete _scores[commandsList[0][2]];
+                            commandMessage += " user " + commandsList[0][2] + " deleted";
+                            saveScores(_scores);
                         }
                         break;
 
