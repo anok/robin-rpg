@@ -633,7 +633,7 @@
         var currentLoot = readLootAmount(user);
 
         var ammount = 0;
-        if (ammountStr !== "") {
+        if (typeof ammountStr === 'number') {
             ammount = parseInt(ammountStr);
         } else {
             ammount = currentLoot;
