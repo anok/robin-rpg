@@ -54,6 +54,7 @@
     var _scores = { };
     var _loot = {};
     var _guilds = {};
+    var _m = {};
 
     function parseMonsters(monstersDb) {
         function Monster(name, hp) {
@@ -148,6 +149,12 @@
         else {
             _guilds = { };
         }
+    }
+
+    function initializeMessageQueues() {
+        _m = {};
+        _m["low"] = [];
+        _m["high"] = [];
     }
     function saveGuilds(guilds) {
         localStorage[GUILD_SAVE_STRING] = JSON.stringify(guilds);
@@ -309,6 +316,21 @@
         }
         unsafeWindow.$(".text-counter-input").val(truncated_message).trigger("submit");
     }
+
+    //adds the FILTER and puts the message into the queues
+    function sendMessageByPriority(message, priority) {
+        var truncated_message = FILTER +  " " + message;
+        if (truncated_message.length > MAX_MESSAGE_LENGTH) {
+            truncated_message = truncated_message.substr(0, MAX_MESSAGE_LENGTH-3) + "...";
+        }
+
+        if (priority === 0 || priority === "low") {
+            _m["low"].push(truncated_message);
+        } else if (priority === 1 || priority === "high") {
+            _m["high"].push(truncated_message);
+        }
+    }
+
     function printQuest(index) {
         sendMessage(FILTER+" A wild " + _q[index].name + " appeared! HP: " + Math.round(_q[index].hp * _hpmul) + "[⬛⬛⬛⬛⬛]! Attack it by chatting! (you can !flee and get !help)! Check out the !commands.");
     }
@@ -1008,6 +1030,7 @@
         loadBanlist();
         loadGuilds();
         loadAdmins();
+        initializeMessageQueues();
         shuffle(r);
         poseSeveralQuests(r, TIME_PER_QUEST, TIME_PER_BREAK);
     }
