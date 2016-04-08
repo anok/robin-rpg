@@ -41,6 +41,10 @@
     var BAN_LIST = [];
     var ADMINS = ["anokrs", "npst0r"];
 
+    var RAID_GOING_ON = false;
+    var RAID_LENGTH = 300000; //5 mins
+    var RAID_COOLDOWN = 600000; // 10 mins; a guild can start a raid only every 10 minutes, so there is a chance to retaliate for the other guild
+
 
     var _q = [];
     var _l = [];
@@ -54,6 +58,7 @@
     var _scores = { };
     var _loot = {};
     var _guilds = {};
+    var _raid = {};
 
     function parseMonsters(monstersDb) {
         function Monster(name, hp) {
@@ -474,7 +479,7 @@
             //GUILD COMMAND SUB-SYSTEM
             //only accepts messages that starts with the command
             var pos = FILTER.length + 2;
-            if(_msg.substring(0, pos) === "#rpg !") {
+            if(_msg.substring(0, pos) === FILTER + " !") {
                 if(_msg.substring(pos, pos+"create".length) === "create") {
                     pos += "create".length + 1;
                     commandsList.push(["!create", _user, _msg.substring(pos)]);
@@ -501,6 +506,33 @@
 
                 if(_msg.includes("!guilds")) {
                     commandsList.push(["!guilds", _user]);
+                    continue;
+                }
+            }
+
+            //RAID COMMANDS
+            var pos = FILTER.length + 2;
+            if (_msg.substring(0, pos) === FILTER + " !") {
+                if (_msg.substring(pos, pos+"raid".length) === "raid") {
+                    pos += "raid".length + 1;
+                    commandsList.push(["!raid", _user, _msg.substring(pos)]);
+                    continue;
+                }
+            }
+
+            if (_msg.substring(0, pos) === FILTER + " !") {
+                if (_msg.substring(pos, pos+"attack".length) === "attack") {
+                    pos += "attack".length + 1;
+                    commandsList.push(["!attack", _user]);
+                    continue;
+                }
+            }
+
+            if (_msg.substring(0, pos) === FILTER + " !") {
+                if (_msg.substring(pos, pos+"defend".length) === "defend") {
+                    pos += "defend".length + 1;
+                    commandsList.push(["!defend", _user]);
+                    continue;
                 }
             }
 
@@ -650,6 +682,19 @@
                     case "!guilds":
                         commandMessage += computeTopGuildsStr(_guilds, 15);
                         break;
+
+                    case "!raid":
+                        var attacked_guild = commandsList[0][2];
+                        commandMessage += raidGuild(command_user, attacked_guild);
+                        break;
+
+                    case "!attack":
+                        commandMessage += raidAttack(command_user);
+                        break;
+
+                    case "!defend":
+                        commandMessage += raidDefend(command_user);
+                        break;
                 }
                 if(commandMessage.length > FILTER.length + " ") {
                     sendMessage(commandMessage);
@@ -660,6 +705,106 @@
                 replyCommand();
             }
         }, COMMANDS_TIMEOUT);
+    }
+
+    function raidGuild(user, defGuildName) {
+        var reply = "";
+
+        //check all prerequisites for a raid
+        if (RAID_GOING_ON) return true; //TODO message what raid is going on
+
+        if (_scores[user] === undefined) {
+            _scores[user] = [0,0, ""]; //TODO message user has no guild
+            return true;
+        } else if (_scores[user][2] === undefined) {
+            _scores[user][2] = ""; //TODO message user has no guild
+            return true;
+        }
+        var attGuildName = _scores[user][2];
+
+        if (_guilds[defGuildName] === undefined) {
+            //TODO attacked guild does not exist
+            return true;
+        }
+
+        //has defending guild loot that can be stolen?
+        if (_guilds[defGuildName][0] < 1) {
+            //TODO attacked guild has not enough loot
+            return true;
+        }
+
+        //attacking guild on cooldown?
+        if (_guilds[attGuildName][3] === undefined) _guilds[attGuildName][3] = 0;
+        if (_guilds[attGuildName][3] + RAID_COOLDOWN > ((new Date()).getTime())) {
+            //TODO msg guild is on cd
+            return true;
+        }
+
+        //raid can start
+        RAID_GOING_ON = true;
+        _raid = {};
+        _raid["attackingGuild"] = _scores[user][2];
+        _raid["defendingGuild"] = defGuildName;
+        _raid["attackers"] = [];
+        _raid["defenders"] = [];
+
+        _raid["attackers"].push(user);
+        _guilds[attGuildName][3] = new Date().getMilliseconds();
+
+        //TODO msg about raid starting
+
+        setTimeout(function() {
+
+            //TODO calculations based on attackers, defenders and overall vaults of the guilds
+            //magic happens
+            //the strength is the amount of the loot of the enemy
+            // + base attacker/defender dmg is 10
+            // + bonus 10% overall extra strength per attacker/defender
+            var attAmount = _raid["attackers"].length;
+            var attGuild = _raid["attackingGuild"];
+            var defAmount = _raid["defenders"].length;
+            var defGuild = _raid["defendingGuild"];
+            var attStrength = (_guilds[defGuild][0] + attAmount * 10) * (1.1 * attAmount);
+            var defStrength = (_guilds[attGuild][0] + defAmount * 10) * (1.1 * defAmount);
+
+            var threshold = attStrength / (attStrength + defStrength);
+            if (Math.random() <= threshold) {
+                //attackers win
+                //TODO msg
+                _guilds[defGuild][0] -= 1;
+                _guilds[attGuild][0] += 1;
+            } else {
+                //TODO msg the raid has failed
+            }
+
+            RAID_GOING_ON = false;
+        }, RAID_LENGTH);
+    }
+
+    function raidAttack(user) {
+        if (!RAID_GOING_ON) {
+            //TODO msg no raid going on, start one with !raid [guild]
+            return true;
+        }
+        if (_scores[user][2] === _raid["attackingGuild"]) {
+            _raid["attackers"].push(user);
+            //TODO msg user participating in attack
+        } else {
+            //TODO msg user your guild is not attacking, try !defend or start !raid
+        }
+    }
+
+    function raidDefend(user) {
+        if (!RAID_GOING_ON) {
+            //TODO msg no raid going on, start one with !raid [guild]
+            return true;
+        }
+        if (_scores[user][2] === _raid["defendingGuild"]) {
+            _raid["defenders"].push(user);
+            //TODO msg user participating in defense
+        } else {
+            //TODO msg user your guild is not defending, try !attack or start !raid
+        }
     }
 
     function joinGuild(user, guild) {
@@ -717,7 +862,7 @@
 
         _scores[user][1] -= 5;
         _scores[user][2] = guild;
-        _guilds[guild] = [5, user, guildFullName];
+        _guilds[guild] = [5, user, guildFullName, 0];
 
         var reply = "";
         if(currentGuild === "")
